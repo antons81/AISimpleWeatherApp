@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-@main
+
 struct AISimpleWeatherAppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            
         }
     }
 }

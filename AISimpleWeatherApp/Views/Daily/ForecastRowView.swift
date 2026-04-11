@@ -1,6 +1,9 @@
-// ForecastRowView.swift
-// Row shown in the daily forecast list inside DailyView.
-// Replaces WeatherCell.setupCurrentWeather(_:isImperial:) from the old code.
+//
+//  WeatherIconView.swift
+//  AISimpleWeatherApp
+//
+//  Created by Anton Stremovskiy on 11.04.26.
+//
 
 import SwiftUI
 
@@ -12,7 +15,7 @@ struct ForecastRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            weatherIcon
+            WeatherIconView(iconCode: item.weather?.first?.icon ?? "01d")
 
             Text(dayString)
                 .font(.subheadline)
@@ -28,16 +31,37 @@ struct ForecastRowView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(maxTempString)
                     .font(.subheadline.bold())
+                    .foregroundStyle(Color(.orange))
                 Text(minTempString)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.blue)
             }
         }
         .padding(.vertical, 6)
         .padding(.horizontal, 12)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(.secondarySystemBackground))
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.80, green: 0.90, blue: 0.99).opacity(0.65),
+                            Color(red: 0.62, green: 0.78, blue: 0.95).opacity(0.45)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                // Subtle inner highlight to lift the surface
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.28), lineWidth: 0.6)
+                )
+                // Ambient shadow (broad, soft)
+                .shadow(color: Color.black.opacity(0.06), radius: 14, x: 0, y: 10)
+                // Key light shadow (tighter, slightly colored)
+                .shadow(color: Color(red: 0.50, green: 0.70, blue: 0.90).opacity(0.20), radius: 10, x: 0, y: 4)
+                // Tiny contact shadow for depth
+                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 1)
         )
     }
 

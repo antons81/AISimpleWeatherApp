@@ -1,20 +1,24 @@
-// DailyHeaderView.swift
-// Large weather summary card shown at the top of DailyView.
-// Corresponds to the bigIcon / day / desc / min / max outlets in the old XIB.
+//
+//  WeatherIconView.swift
+//  AISimpleWeatherApp
+//
+//  Created by Anton Stremovskiy on 11.04.26.
+//
 
 import SwiftUI
 
+
 struct DailyHeaderView: View {
 
-    let item:     ForecastItem
+    let item: ForecastItem
     let cityName: String
 
     @AppStorage("isImperial") private var isImperial: Bool = false
 
     var body: some View {
-        HStack(spacing: 20) {
-            weatherIcon
-
+        HStack(alignment: .center, spacing: 20) {
+            WeatherIconView(iconCode: item.weather?.first?.icon ?? "01d")
+            Spacer(minLength: 40)
             VStack(alignment: .leading, spacing: 4) {
                 Text(cityName)
                     .font(.title2.bold())
@@ -35,14 +39,35 @@ struct DailyHeaderView: View {
                         .foregroundStyle(.orange)
                 }
             }
+            
+            Spacer(minLength: 20)
 
-            Spacer()
         }
-        .padding()
+        .frame(width: .infinity)
+        .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .black.opacity(0.08), radius: 6)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.80, green: 0.90, blue: 0.99).opacity(0.65),
+                            Color(red: 0.62, green: 0.78, blue: 0.95).opacity(0.45)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            // Subtle inner highlight to lift the surface
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.28), lineWidth: 0.6)
+                )
+            // Ambient shadow (broad, soft)
+                .shadow(color: Color.black.opacity(0.06), radius: 14, x: 0, y: 10)
+            // Key light shadow (tighter, slightly colored)
+                .shadow(color: Color(red: 0.50, green: 0.70, blue: 0.90).opacity(0.20), radius: 10, x: 0, y: 4)
+            // Tiny contact shadow for depth
+                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 1)
         )
     }
 
@@ -88,3 +113,4 @@ struct DailyHeaderView: View {
         return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
     }
 }
+
