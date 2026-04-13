@@ -10,38 +10,91 @@ import SwiftUI
 struct MainView: View {
 
     @StateObject private var viewModel = MainViewModel()
-
+    @State private var showSettings = false
+    
     var body: some View {
         ZStack {
-            // App-wide subtle gradient background
-            LinearGradient(
-                colors: [
-                    Color(red: 0.92, green: 0.96, blue: 1.00),
-                    Color(red: 0.86, green: 0.93, blue: 0.99)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // Background
+            AppTheme.backgroundGradient
+                .ignoresSafeArea()
 
-            content
+            // Decorative blobs
+            Circle()
+                .fill(Color(red: 0.3, green: 0.7, blue: 0.4).opacity(0.08))
+                .frame(width: 300, height: 300)
+                .offset(x: 120, y: -200)
+                .blur(radius: 40)
 
+            Circle()
+                .fill(Color(red: 0.2, green: 0.5, blue: 0.3).opacity(0.07))
+                .frame(width: 250, height: 250)
+                .offset(x: -100, y: 300)
+                .blur(radius: 40)
+
+            VStack(spacing: 0) {
+                // Top bar
+                topBar
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+
+                // Search
+                searchBar
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+
+                // City list
+                if viewModel.filteredWeathers.isEmpty && !viewModel.isLoading {
+                    Spacer()
+                    ContentUnavailableView(
+                        "No Cities",
+                        systemImage: "cloud.slash",
+                        description: Text("Pull to refresh or check your search.")
+                    )
+                    .foregroundStyle(AppTheme.textSecondary)
+                    Spacer()
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: 10) {
+                            ForEach(viewModel.filteredWeathers) { weather in
+                                NavigationLink {
+                                    DailyView(
+                                        cityName: weather.name ?? "",
+                                        lat: weather.coord?.lat ?? 0,
+                                        lon: weather.coord?.lon ?? 0,
+                                        currentWeather: weather
+                                    )
+                                } label: {
+                                    WeatherRowView(
+                                        weather: weather,
+                                        isImperial: viewModel.isImperial
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 20)
+                    }
+                    .refreshable { viewModel.loadWeather() }
+                }
+            }
+
+            // Loading overlay
             if viewModel.isLoading {
+                Color.black.opacity(0.2).ignoresSafeArea()
                 ProgressView()
-                    .scaleEffect(1.5)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.15))
+                    .tint(AppTheme.accentGreen)
+                    .scaleEffect(1.4)
             }
         }
-        .navigationTitle("World Weather AI")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar { metricToggle }
-        .searchable(
-            text: $viewModel.searchText,
-            prompt: Text("Search city…")
-        )
+        .navigationBarHidden(true)
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+        }
+        .task { viewModel.loadWeather() }
         .alert(
-            "Loading Error",
+            "Error",
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -49,117 +102,85 @@ struct MainView: View {
             actions: { Button("OK", role: .cancel) {} },
             message: { Text(viewModel.errorMessage ?? "") }
         )
-        .task {
-            // Initial data load when the view appears for the first time
-            viewModel.loadWeather()
-        }
-        .refreshable {
-            // Pull-to-refresh support
-            viewModel.loadWeather()
-        }
     }
 
-    // MARK: - Subviews
+    // MARK: - Top bar
 
-    @ViewBuilder
-    private var content: some View {
-        if viewModel.filteredWeathers.isEmpty && !viewModel.isLoading {
-            ContentUnavailableView(
-                "No Results",
-                systemImage: "cloud",
-                description: Text("Pull to refresh or check your search.")
-            )
-        } else {
-            List(viewModel.filteredWeathers) { weather in
+    private var topBar: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("World Weather")
+                    .font(.system(size: 22, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppTheme.textPrimary)
+                Text(viewModel.isImperial ? "Imperial" : "Metric")
+                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+
+            Spacer()
+
+            // Settings button
+            Button { showSettings = true } label: {
                 ZStack {
-                    WeatherRowView(weather: weather, isImperial: viewModel.isImperial)
-                        .contentShape(Rectangle())
-                    NavigationLink {
-                        DailyView(
-                            cityName: weather.name ?? "",
-                            lat: weather.coord?.lat ?? 0,
-                            lon: weather.coord?.lon ?? 0
-                        )
-                    } label: {
-                        EmptyView()
-                    }
-                    .opacity(0.001) // invisible but tappable
+                    Circle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
                 }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                .listRowBackground(Color.clear)
             }
-            .listStyle(.plain)
         }
     }
 
-    // MARK: Metric / Imperial toggle in toolbar
+    // MARK: - Search bar
 
-    @ToolbarContentBuilder
-    private var metricToggle: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            UnitToggle(
-                isImperial: viewModel.isImperial,
-                onMetric: { viewModel.setImperial(false) },
-                onImperial: { viewModel.setImperial(true) }
-            )
+    private var searchBar: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 14))
+                .foregroundStyle(AppTheme.textTertiary)
+
+            TextField("", text: $viewModel.searchText)
+                .placeholder(when: viewModel.searchText.isEmpty) {
+                    Text("Search city...")
+                        .foregroundStyle(AppTheme.textTertiary)
+                        .font(.system(size: 14, design: .rounded))
+                }
+                .foregroundStyle(AppTheme.textPrimary)
+                .font(.system(size: 14, design: .rounded))
+                .autocorrectionDisabled()
+
+            if !viewModel.searchText.isEmpty {
+                Button {
+                    viewModel.searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(AppTheme.textTertiary)
+                        .font(.system(size: 14))
+                }
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .glassCard(cornerRadius: 14)
+    }
+}
+
+// MARK: - Placeholder helper
+
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        @ViewBuilder placeholder: () -> Content
+    ) -> some View {
+        ZStack(alignment: .leading) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
         }
     }
 }
 
-// MARK: - Subviews (Private Helpers)
-
-private struct UnitToggle: View {
-    let isImperial: Bool
-    let onMetric: () -> Void
-    let onImperial: () -> Void
-
-    var body: some View {
-        let activeFill = Color.accentColor
-        let inactiveFill = Color.clear
-        let activeText: Color = .white
-        let inactiveText: Color = .secondary
-
-        HStack(spacing: 0) {
-            Button(action: onMetric) {
-                Text("Metric")
-                    .font(.caption.weight(.semibold))
-                    .padding(.vertical, 6)
-                    .frame(width: 58)
-                    .foregroundStyle(isImperial ? inactiveText : activeText)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(isImperial ? inactiveFill : activeFill)
-                    )
-            }
-            .buttonStyle(.plain)
-
-            Button(action: onImperial) {
-                Text("Imperial")
-                    .font(.caption.weight(.semibold))
-                    .padding(.vertical, 6)
-                    .frame(width: 68)
-                    .foregroundStyle(isImperial ? activeText : inactiveText)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(isImperial ? activeFill : inactiveFill)
-                    )
-            }
-            .buttonStyle(.plain)
-        }
-        .animation(.easeInOut(duration: 0.18), value: isImperial)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.white.opacity(0.35))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color.white.opacity(0.45), lineWidth: 0.5)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 2)
-    }
-}
 
 // MARK: - Preview
 

@@ -1,96 +1,57 @@
-//
-//  WeatherIconView.swift
-//  AISimpleWeatherApp
-//
-//  Created by Anton Stremovskiy on 11.04.26.
-//
 
 import SwiftUI
-
 
 struct DailyHeaderView: View {
 
     let item: ForecastItem
     let cityName: String
 
-    @AppStorage("isImperial") private var isImperial: Bool = false
+    @AppStorage("isImperial") private var isImperial = false
 
     var body: some View {
-        HStack(alignment: .center, spacing: 20) {
-            WeatherIconView(iconCode: item.weather?.first?.icon ?? "01d")
-            Spacer(minLength: 40)
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(spacing: 16) {
+            // Icon
+            WeatherIconView(iconCode: item.weather?.first?.icon ?? "01d", size: 88) // свой размер
+                .frame(width: 100, height: 100)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color.white.opacity(0.06))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.5)
+                        )
+                )
+
+            VStack(alignment: .leading, spacing: 3) {
                 Text(cityName)
-                    .font(.title2.bold())
+                    .font(.system(size: 20, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppTheme.textPrimary)
 
                 Text(dayString)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 13, design: .rounded))
+                    .foregroundStyle(AppTheme.textSecondary)
 
                 Text(description)
-                    .font(.body)
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
 
                 HStack(spacing: 8) {
-                    Text(minTempString)
-                        .font(.caption)
-                        .foregroundStyle(.blue)
-                    Text(maxTempString)
-                        .font(.caption.bold())
-                        .foregroundStyle(.orange)
+                    Text(minTemp)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundStyle(AppTheme.accentBlue)
+                    Text("/")
+                        .foregroundStyle(AppTheme.textTertiary)
+                    Text(maxTemp)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundStyle(AppTheme.accentGreen)
                 }
             }
-            
-            Spacer(minLength: 20)
 
+            Spacer()
         }
-        .frame(width: .infinity)
-        .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.80, green: 0.90, blue: 0.99).opacity(0.65),
-                            Color(red: 0.62, green: 0.78, blue: 0.95).opacity(0.45)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-            // Subtle inner highlight to lift the surface
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.28), lineWidth: 0.6)
-                )
-            // Ambient shadow (broad, soft)
-                .shadow(color: Color.black.opacity(0.06), radius: 14, x: 0, y: 10)
-            // Key light shadow (tighter, slightly colored)
-                .shadow(color: Color(red: 0.50, green: 0.70, blue: 0.90).opacity(0.20), radius: 10, x: 0, y: 4)
-            // Tiny contact shadow for depth
-                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 1)
-        )
+        .padding(16)
+        .glassCard()
     }
-
-    // MARK: - Subviews
-
-    @ViewBuilder
-    private var weatherIcon: some View {
-        let name = item.weather?.first?.icon ?? "01d"
-        if let uiImage = UIImage(named: name) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 72, height: 72)
-        } else {
-            Image(systemName: "cloud")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 72, height: 72)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    // MARK: - Computed strings
 
     private var dayString: String {
         guard let dt = item.dt else { return "" }
@@ -103,14 +64,13 @@ struct DailyHeaderView: View {
         item.weather?.first?.weatherDescription?.capitalizingFirstLetter() ?? ""
     }
 
-    private var minTempString: String {
+    private var minTemp: String {
         guard let temp = item.main?.tempMin else { return "--" }
         return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
     }
 
-    private var maxTempString: String {
+    private var maxTemp: String {
         guard let temp = item.main?.tempMax else { return "--" }
         return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
     }
 }
-

@@ -4,119 +4,149 @@
 //
 //  Created by Anton Stremovskiy on 11.04.26.
 //
+// DailyView.swift
 import SwiftUI
 
 struct DailyView: View {
-    
+
     let cityName: String
-    let lat:      Double
-    let lon:      Double
-    
+    let lat: Double
+    let lon: Double
+    let currentWeather: CurrentWeather
+
     @StateObject private var viewModel = DailyViewModel()
-    
-    
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
-        
-        ZStack(alignment: .center) {
-            
-            LinearGradient(
-                colors: [
-                    Color(red: 0.92, green: 0.96, blue: 1.00),
-                    Color(red: 0.86, green: 0.93, blue: 0.99)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                
-                VStack(spacing: 10) {
-                    
-                    if let selected = viewModel.selectedDay {
-                        DailyHeaderView(item: selected, cityName: cityName)
-                            .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                            .frame(maxWidth: .infinity)
+        ZStack {
+            AppTheme.backgroundGradient
+                .ignoresSafeArea()
+
+            // Decorative blobs
+            Circle()
+                .fill(Color(red: 0.3, green: 0.7, blue: 0.4).opacity(0.08))
+                .frame(width: 280, height: 280)
+                .offset(x: 130, y: -180)
+                .blur(radius: 40)
+
+            Circle()
+                .fill(Color(red: 0.2, green: 0.5, blue: 0.3).opacity(0.06))
+                .frame(width: 220, height: 220)
+                .offset(x: -80, y: 280)
+                .blur(radius: 40)
+
+            VStack(spacing: 0) {
+                // Nav bar
+                navBar
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 16)
+
+                ScrollView {
+                    VStack(spacing: 10) {
+                        // Header card
+                        if let selected = viewModel.selectedDay {
+                            DailyHeaderView(
+                                item: selected,
+                                cityName: cityName
+                            )
+                        }
+
+                        // Stats row
+                        if let selected = viewModel.selectedDay {
+                            StatsRowView(item: selected)
+                        }
+
+                        // AI card
+                        AIForecastCard(
+                            weather: viewModel.selectedDay ?? viewModel.forecastDays.first,
+                            viewModel: viewModel
+                        )
+
+                        // Forecast list
+                        forecastList
                     }
-                    
-                    
-                    AIForecastCard(text: "Ai Forecast...")
-                    
-                    LazyVStack(spacing: 8) {
-                                ForEach(viewModel.forecastDays) { item in
-                                    ForecastRowView(item: item)
-                                        .padding(.horizontal, 16)           // вместо listRowInsets
-                                        .contentShape(Rectangle())
-                                        .onTapGesture {
-                                            viewModel.selectedDay = item
-                                        }
-                                }
-                            }
-                            
-                            Spacer(minLength: 40)   // приятный отступ снизу
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
                 }
-                Spacer(minLength: 20)
-                
-                if viewModel.isLoading {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.15))
+                .onAppear {
+                    UIScrollView.appearance().bounces = false
+                }
+                .onDisappear {
+                    UIScrollView.appearance().bounces = true
                 }
             }
-            .navigationTitle(cityName)
-            .navigationBarTitleDisplayMode(.inline)
-            .alert(
-                "Loading Error",
-                isPresented: Binding(
-                    get: { viewModel.errorMessage != nil },
-                    set: { if !$0 { viewModel.errorMessage = nil } }
-                ),
-                actions: { Button("OK", role: .cancel) {} },
-                message: { Text(viewModel.errorMessage ?? "") }
-            )
-            .task {
-                viewModel.loadForecast(lat: lat, lon: lon)
+
+            if viewModel.isLoading {
+                Color.black.opacity(0.15).ignoresSafeArea()
+                ProgressView()
+                    .tint(AppTheme.accentGreen)
+                    .scaleEffect(1.4)
             }
+        }
+        .navigationBarHidden(true)
+        .task {
+            viewModel.loadForecast(lat: lat, lon: lon, type: .normal)
+        }
+        .alert(
+            "Error",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            ),
+            actions: { Button("OK", role: .cancel) {} },
+            message: { Text(viewModel.errorMessage ?? "") }
+        )
+    }
+
+    // MARK: - Nav bar
+
+    private var navBar: some View {
+        HStack(spacing: 12) {
+            Button { dismiss() } label: {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
+                }
+            }
+
+            Text(cityName)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppTheme.textPrimary)
+
+            Spacer()
         }
     }
-}
 
+    // MARK: - Forecast list
 
+    private var forecastList: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(viewModel.forecastDays.enumerated()), id: \.element.id) { index, item in
+                ForecastRowView(item: item)
+                    .contentShape(Rectangle())
+                    .onTapGesture { viewModel.selectedDay = item }
 
-struct AIForecastCard: View {
-    
-    let text: String
-    @State private var tip1 = Color(#colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1));
-    @State private var tip2 = Color(#colorLiteral(red: 0.08327483386, green: 0.08977312595, blue: 0.1014031693, alpha: 0.16));
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(text)
-                .font(.system(size: 14, weight: .light, design: .rounded))
-                .padding(EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
+                if index < viewModel.forecastDays.count - 1 {
+                    Divider()
+                        .background(Color.white.opacity(0.06))
+                        .padding(.horizontal, 14)
+                }
+            }
         }
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(gradient: Gradient(colors: [tip1, tip2]),
-                                   startPoint: .topLeading,
-                                   endPoint: .bottomTrailing)
-                )
-        )
-        .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
-        .padding(.horizontal, 16)
+        .glassCard()
     }
 }
 
 // MARK: - Preview
 
 
-#Preview {
-    NavigationStack {
-        DailyView(cityName: "Berlin", lat: 52.52, lon: 13.405)
-    }
-}
+//#Preview {
+//    NavigationStack {
+//        //DailyView(cityName: "Berlin", lat: 52.52, lon: 13.405)
+//    }
+//}
