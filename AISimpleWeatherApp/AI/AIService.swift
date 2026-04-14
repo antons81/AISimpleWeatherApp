@@ -30,8 +30,8 @@ final class AIService: ObservableObject {
     private let modelConfig = LLMRegistry.llama3_2_1B_4bit
     
     private let generateParameters = GenerateParameters(
-        maxTokens: 150,
-        temperature: 0.7
+        maxTokens: 200,
+        temperature: 0.5
     )
     
     
@@ -39,9 +39,9 @@ final class AIService: ObservableObject {
     private func warmUpModel() async {
         guard let container = modelContainer else { return }
         
-        print("🔥 Выполняем warm-up модели...")
+        print("🔥 doing model warm-up ...")
         
-        let warmPrompt = "Привет, скажи одно слово."
+        let warmPrompt = "Hello, say something to me!"
         
         do {
             _ = try await container.perform { context in

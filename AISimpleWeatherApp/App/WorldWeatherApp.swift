@@ -10,13 +10,11 @@ struct WorldWeatherApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                MainView()
-            }
-            .environmentObject(aiService)
-            .task {
-                await aiService.preloadModel()
-            }
+            LaunchScreenView()
+                .environmentObject(aiService)
+                .task {
+                    await aiService.preloadModel()
+                }
         }
     }
 }

@@ -10,7 +10,7 @@
 
 import Foundation
 
-enum AISummaryType {
+enum AISummaryType: CaseIterable {
     case normal
     case runner
     
@@ -36,7 +36,7 @@ enum AIPromptBuilder {
     }
     
     static func weatherSummary(for weather: ForecastItem, type: AISummaryType) -> String {
-        //let city = weather.name ?? "this city"
+        //let city = weather.weatherDescription.rawValue ?? "this city"
         let desc = weather.weather?.first?.weatherDescription ?? ""
         let temp = weather.main?.temp.toCelsiusString ?? "--"
         let humidity = weather.main?.humidity ?? 0

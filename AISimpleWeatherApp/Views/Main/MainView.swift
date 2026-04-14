@@ -109,7 +109,7 @@ struct MainView: View {
     private var topBar: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("World Weather")
+                Text("Wearly Weather")
                     .font(.system(size: 22, weight: .semibold, design: .rounded))
                     .foregroundStyle(AppTheme.textPrimary)
                 Text(viewModel.isImperial ? "Imperial" : "Metric")

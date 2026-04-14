@@ -167,7 +167,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 1E18BC382F8A6E1F0032D382 /* Build configuration list for PBXProject "AISimpleWeatherApp" */;
+			buildConfigurationList = 1E18BC382F8A6E1F0032D382 /* Build configuration list for PBXProject "WearlyWeather" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -369,7 +369,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = launchImage;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreenView;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortraitUpsideDown;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -410,7 +410,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = launchImage;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreenView;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortraitUpsideDown;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -479,7 +479,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1E18BC382F8A6E1F0032D382 /* Build configuration list for PBXProject "AISimpleWeatherApp" */ = {
+		1E18BC382F8A6E1F0032D382 /* Build configuration list for PBXProject "WearlyWeather" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1E18BC462F8A6E200032D382 /* Debug */,
