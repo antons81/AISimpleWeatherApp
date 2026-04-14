@@ -11,17 +11,28 @@
 		1E52BBE82F8BB4FA0082CE88 /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 1E52BBE72F8BB4FA0082CE88 /* MLXLMCommon */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1E223BF02F8E615B00134BA5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E18BC352F8A6E1F0032D382 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1E18BC3C2F8A6E1F0032D382;
+			remoteInfo = AISimpleWeatherApp;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		1E18BC3D2F8A6E1F0032D382 /* AISimpleWeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AISimpleWeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E18BC3D2F8A6E1F0032D382 /* WearlyWeather.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WearlyWeather.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E223BEC2F8E615B00134BA5 /* WearlyWeatherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WearlyWeatherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		1E18BC752F8A77730032D382 /* Exceptions for "AISimpleWeatherApp" folder in "AISimpleWeatherApp" target */ = {
+		1E18BC752F8A77730032D382 /* Exceptions for "AISimpleWeatherApp" folder in "WearlyWeather" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 1E18BC3C2F8A6E1F0032D382 /* AISimpleWeatherApp */;
+			target = 1E18BC3C2F8A6E1F0032D382 /* WearlyWeather */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -29,9 +40,14 @@
 		1E18BC3F2F8A6E1F0032D382 /* AISimpleWeatherApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				1E18BC752F8A77730032D382 /* Exceptions for "AISimpleWeatherApp" folder in "AISimpleWeatherApp" target */,
+				1E18BC752F8A77730032D382 /* Exceptions for "AISimpleWeatherApp" folder in "WearlyWeather" target */,
 			);
 			path = AISimpleWeatherApp;
+			sourceTree = "<group>";
+		};
+		1E223BED2F8E615B00134BA5 /* AISimpleWeatherAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = AISimpleWeatherAppTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -46,6 +62,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1E223BE92F8E615B00134BA5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -53,6 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				1E18BC3F2F8A6E1F0032D382 /* AISimpleWeatherApp */,
+				1E223BED2F8E615B00134BA5 /* AISimpleWeatherAppTests */,
 				1E52BBA02F8B9E5C0082CE88 /* Frameworks */,
 				1E18BC3E2F8A6E1F0032D382 /* Products */,
 			);
@@ -61,7 +85,8 @@
 		1E18BC3E2F8A6E1F0032D382 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1E18BC3D2F8A6E1F0032D382 /* AISimpleWeatherApp.app */,
+				1E18BC3D2F8A6E1F0032D382 /* WearlyWeather.app */,
+				1E223BEC2F8E615B00134BA5 /* WearlyWeatherTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,9 +101,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1E18BC3C2F8A6E1F0032D382 /* AISimpleWeatherApp */ = {
+		1E18BC3C2F8A6E1F0032D382 /* WearlyWeather */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1E18BC482F8A6E200032D382 /* Build configuration list for PBXNativeTarget "AISimpleWeatherApp" */;
+			buildConfigurationList = 1E18BC482F8A6E200032D382 /* Build configuration list for PBXNativeTarget "WearlyWeather" */;
 			buildPhases = (
 				1E18BC392F8A6E1F0032D382 /* Sources */,
 				1E18BC3A2F8A6E1F0032D382 /* Frameworks */,
@@ -91,14 +116,37 @@
 			fileSystemSynchronizedGroups = (
 				1E18BC3F2F8A6E1F0032D382 /* AISimpleWeatherApp */,
 			);
-			name = AISimpleWeatherApp;
+			name = WearlyWeather;
 			packageProductDependencies = (
 				1E52BBE52F8BB4FA0082CE88 /* MLXLLM */,
 				1E52BBE72F8BB4FA0082CE88 /* MLXLMCommon */,
 			);
 			productName = AISimpleWeatherApp;
-			productReference = 1E18BC3D2F8A6E1F0032D382 /* AISimpleWeatherApp.app */;
+			productReference = 1E18BC3D2F8A6E1F0032D382 /* WearlyWeather.app */;
 			productType = "com.apple.product-type.application";
+		};
+		1E223BEB2F8E615B00134BA5 /* WearlyWeatherTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1E223BF22F8E615B00134BA5 /* Build configuration list for PBXNativeTarget "WearlyWeatherTests" */;
+			buildPhases = (
+				1E223BE82F8E615B00134BA5 /* Sources */,
+				1E223BE92F8E615B00134BA5 /* Frameworks */,
+				1E223BEA2F8E615B00134BA5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1E223BF12F8E615B00134BA5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1E223BED2F8E615B00134BA5 /* AISimpleWeatherAppTests */,
+			);
+			name = WearlyWeatherTests;
+			packageProductDependencies = (
+			);
+			productName = AISimpleWeatherAppTests;
+			productReference = 1E223BEC2F8E615B00134BA5 /* WearlyWeatherTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -112,6 +160,10 @@
 				TargetAttributes = {
 					1E18BC3C2F8A6E1F0032D382 = {
 						CreatedOnToolsVersion = 26.4;
+					};
+					1E223BEB2F8E615B00134BA5 = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = 1E18BC3C2F8A6E1F0032D382;
 					};
 				};
 			};
@@ -132,13 +184,21 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1E18BC3C2F8A6E1F0032D382 /* AISimpleWeatherApp */,
+				1E18BC3C2F8A6E1F0032D382 /* WearlyWeather */,
+				1E223BEB2F8E615B00134BA5 /* WearlyWeatherTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1E18BC3B2F8A6E1F0032D382 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1E223BEA2F8E615B00134BA5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -155,7 +215,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1E223BE82F8E615B00134BA5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1E223BF12F8E615B00134BA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1E18BC3C2F8A6E1F0032D382 /* WearlyWeather */;
+			targetProxy = 1E223BF02F8E615B00134BA5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1E18BC462F8A6E200032D382 /* Debug */ = {
@@ -359,6 +434,48 @@
 			};
 			name = Release;
 		};
+		1E223BF32F8E615B00134BA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aSoft.AISimpleWeatherAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AISimpleWeatherApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AISimpleWeatherApp";
+			};
+			name = Debug;
+		};
+		1E223BF42F8E615B00134BA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aSoft.AISimpleWeatherAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AISimpleWeatherApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AISimpleWeatherApp";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -371,11 +488,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1E18BC482F8A6E200032D382 /* Build configuration list for PBXNativeTarget "AISimpleWeatherApp" */ = {
+		1E18BC482F8A6E200032D382 /* Build configuration list for PBXNativeTarget "WearlyWeather" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1E18BC492F8A6E200032D382 /* Debug */,
 				1E18BC4A2F8A6E200032D382 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1E223BF22F8E615B00134BA5 /* Build configuration list for PBXNativeTarget "WearlyWeatherTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1E223BF32F8E615B00134BA5 /* Debug */,
+				1E223BF42F8E615B00134BA5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

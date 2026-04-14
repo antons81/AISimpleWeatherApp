@@ -1,17 +1,16 @@
 {
   "images" : [
     {
-      "filename" : "WeatherAppLaunch.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "WeatherAppLaunch@2x.png",
+      "filename" : "Gemini_Generated_Image_g3zfa2g3zfa2g3zf.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "WeatherAppLaunch@3x.png",
+      "filename" : "Gemini_Generated_Image_g3zfa2g3zfa2g3zf 1.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
