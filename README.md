@@ -1,4 +1,4 @@
-# 🌿 AI Simple Weather App
+# 🌿 Wearly Weather AI App
 
 > A beautiful iOS weather app with on-device AI assistant built with SwiftUI + MVVM + Combine
 
