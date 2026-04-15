@@ -27,10 +27,10 @@ final class AIService: ObservableObject {
     
     private var modelContainer: ModelContainer?
     
-    private let modelConfig = LLMRegistry.llama3_2_1B_4bit
+    private let modelConfig = LLMRegistry.llama3_2_3B_4bit
     
-    private let generateParameters = GenerateParameters(
-        maxTokens: 200,
+    private let generateParameters = GenerateParameters (
+        maxTokens: 2048,
         temperature: 0.5
     )
     
@@ -39,7 +39,9 @@ final class AIService: ObservableObject {
     private func warmUpModel() async {
         guard let container = modelContainer else { return }
         
-        print("🔥 doing model warm-up ...")
+        IFF_DEBUG: do {
+            print("🔥 doing model warm-up ...")
+        }
         
         let warmPrompt = "Hello, say something to me!"
         
@@ -51,13 +53,21 @@ final class AIService: ObservableObject {
                 
                 return try MLXLMCommon.generate(
                     input: input,
-                    parameters: GenerateParameters(maxTokens: 10),
+                    parameters: GenerateParameters(maxTokens: 100, temperature: 0.3),
                     context: context
                 )
             }
-            print("✅ Warm-up completed")
+            
+            IFF_DEBUG: do {
+                print("✅ Warm-up completed")
+            }
+            
         } catch {
-            print("Warm-up failed: \(error)")
+            
+            IFF_DEBUG: do {
+                print("Warm-up failed: \(error)")
+            }
+            
         }
     }
     
@@ -74,7 +84,11 @@ final class AIService: ObservableObject {
             }
             
             isModelLoaded = true
-            print("✅ AI Model preloaded successfully")
+            
+            IFF_DEBUG: do {
+                print("✅ AI Model preloaded successfully")
+            }
+            
             await warmUpModel()
             
             
@@ -103,15 +117,25 @@ final class AIService: ObservableObject {
         }
     }
     
-    // Новая основная функция с streaming
+    // new streaming function
     func generateSummary(prompt: String) async {
+        
         guard !isGenerating else {
             print("⚠️ Already generating, skip")
             return
         }
         
-        isGenerating = true
-        output = ""
+        await MainActor.run {
+            isGenerating = true
+            output = ""
+        }
+        
+        defer {
+            Task { @MainActor in
+                isGenerating = false
+                print("🏁 Generation flag reset to false")
+            }
+        }
         
         if modelContainer == nil {
             await preloadModel()
@@ -123,42 +147,57 @@ final class AIService: ObservableObject {
             return
         }
         
-        print("🚀 Starting generation...")
+        IFF_DEBUG: do {
+            print("🚀 Starting generation...")
+        }
         
         do {
             let _ = try await container.perform { context in
-                print("📝 Preparing input...")
+                
+                IFF_DEBUG: do {
+                    print("📝 Preparing input...")
+                }
+                
                 let input = try await context.processor.prepare(
                     input: UserInput(messages: [["role": "user", "content": prompt]])
                 )
+                
                 print("⚡️ Input ready, generating...")
                 
                 return try MLXLMCommon.generate(
                     input: input,
-                    parameters: GenerateParameters(maxTokens: 50, temperature: 0.7),
+                    parameters: generateParameters,
                     context: context,
                     didGenerate: { (tokens: [Int]) -> GenerateDisposition in
                         let text = context.tokenizer.decode(tokens: tokens)
                         Task { @MainActor [weak self] in
                             guard let self else { return }
-                            // output накапливается полностью
+                            // output full collection
                             self.output = text
                             
-                            // displayOutput = последнее декодированное значение (весь текст целиком)
-                            // но берём только новый кусок — последние символы
+                            // displayOutput = last decoded value
+                            // but taking new piece only
                             self.displayOutput = text
                         }
                         return .more
                     }
                 )
             }
-            print("✅ Generation complete, output: \(output.prefix(50))")
+            
+            IFF_DEBUG: do {
+                print("✅ Generation complete, output: \(output.prefix(50))")
+            }
+            
+            isGenerating = false
         } catch {
-            print("❌ Generation error: \(error)")
+            
+            IFF_DEBUG: do {
+                print("❌ Generation error: \(error)")
+            }
+            
             output = "Error: \(error.localizedDescription)"
+            isGenerating = false
         }
-        
-        isGenerating = false
     }
     
     // old function

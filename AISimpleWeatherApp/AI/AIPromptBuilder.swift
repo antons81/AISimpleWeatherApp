@@ -36,7 +36,7 @@ enum AIPromptBuilder {
     }
     
     static func weatherSummary(for weather: ForecastItem, type: AISummaryType) -> String {
-        //let city = weather.weatherDescription.rawValue ?? "this city"
+        
         let desc = weather.weather?.first?.weatherDescription ?? ""
         let temp = weather.main?.temp.toCelsiusString ?? "--"
         let humidity = weather.main?.humidity ?? 0
@@ -59,7 +59,8 @@ enum AIPromptBuilder {
 
         Instructions:
         1. Answer ONLY in \(currentLanguage()) language.
-        2. Write 2-3 short sentences, plain text only, no markdown, no bullet points, no headers.
+        2. Write 4-5 sentences, plain text only, no markdown, no bullet points, no headers.
+        3. Make paragraphs in text.
         3. Give a brief summary and one practical tip with light humor.
         
         """

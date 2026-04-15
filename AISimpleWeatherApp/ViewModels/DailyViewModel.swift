@@ -16,7 +16,8 @@ final class DailyViewModel: ObservableObject {
     @Published var selectedDay:   ForecastItem?  = nil
     @Published var isLoading:     Bool           = false
     @Published var errorMessage:  String?        = nil
-    @Published var aiSummary: String = ""
+    @Published var aiSummary: String             = ""
+    @Published var isGenerating: Bool = false
     
     let aiService = AIService.shared
 
@@ -35,9 +36,17 @@ final class DailyViewModel: ObservableObject {
         aiService.$displayOutput
             .receive(on: DispatchQueue.main)
             .sink { [weak self] value in
-                self?.aiSummary = value  // просто присваиваем, не +=
+                self?.aiSummary = value
             }
             .store(in: &cancellables)
+        
+        aiService.$isGenerating
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] value in
+                    self?.isGenerating = value
+                }
+                .store(in: &cancellables)
+        
     }
 
     // MARK: - Public API
@@ -46,9 +55,6 @@ final class DailyViewModel: ObservableObject {
         
         // new function for streaming
         await aiService.generateSummary(prompt: prompt)
-        
-        // final result
-        //self.aiSummary = aiService.output
     }
 
 

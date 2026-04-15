@@ -5,13 +5,14 @@
 //  Created by Anton Stremovskiy on 13.04.26.
 //
 
-// AIForecastCard.swift
+
 import SwiftUI
 
 struct AIForecastCard: View {
 
     let weather: ForecastItem?
     @ObservedObject var viewModel: DailyViewModel
+    
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -34,7 +35,7 @@ struct AIForecastCard: View {
                     ProgressView()
                         .tint(AppTheme.accentGreen)
                         .scaleEffect(0.7)
-                } else if !viewModel.aiSummary.isEmpty {
+                } else if !viewModel.aiService.isGenerating {
                     Button {
                         guard let item = weather else { return }
                         Task { await viewModel.generateAISummary(for: item, type: userType) }
@@ -48,7 +49,7 @@ struct AIForecastCard: View {
 
             // Content
             if viewModel.aiSummary.isEmpty && viewModel.aiService.isGenerating {
-                // Показываем Thinking только пока текст ещё не начал появляться
+                // Show Thinking until text appears
                 HStack(spacing: 8) {
                     ProgressView()
                         .tint(AppTheme.accentGreen)
@@ -58,7 +59,7 @@ struct AIForecastCard: View {
                         .foregroundStyle(AppTheme.textSecondary)
                 }
             } else if viewModel.aiSummary.isEmpty && !viewModel.aiService.isGenerating {
-                // Кнопка Get Tip
+                // Button Get Tip
                 Button {
                     guard let item = weather else { return }
                     Task { await viewModel.generateAISummary(for: item, type: userType) }
@@ -82,7 +83,7 @@ struct AIForecastCard: View {
                     )
                 }
             } else {
-                // Текст появляется потоком — показываем сразу как только начался
+                // streaming text
                 Text(viewModel.aiSummary)
                     .id(viewModel.aiSummary)
                     .font(.system(size: 13, weight: .light, design: .rounded))
