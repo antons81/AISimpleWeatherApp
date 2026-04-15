@@ -30,8 +30,9 @@ final class AIService: ObservableObject {
     private let modelConfig = LLMRegistry.llama3_2_3B_4bit
     
     private let generateParameters = GenerateParameters (
-        maxTokens: 2048,
-        temperature: 0.5
+        maxTokens: 512,
+        temperature: 0.7,
+        repetitionPenalty: 1.2
     )
     
     
