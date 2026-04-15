@@ -35,7 +35,7 @@ enum AIPromptBuilder {
         return UserDefaults.isImperial
     }
     
-    static func weatherSummary(for weather: ForecastItem, type: AISummaryType) -> String {
+    static func weatherSummary(for weather: ForecastItem, type: AISummaryType, city: String) -> String {
         
         let desc = weather.weather?.first?.weatherDescription ?? ""
         let temp = weather.main?.temp.toCelsiusString ?? "--"
@@ -50,6 +50,7 @@ enum AIPromptBuilder {
         Language: \(currentLanguage()).
 
         Current weather:
+        - City: \(city)
         - Condition: \(desc)
         - Temperature: \(temp)
         - Humidity: \(humidity)%

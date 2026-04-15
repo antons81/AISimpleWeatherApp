@@ -71,6 +71,7 @@ struct DailyView: View {
                 }
                 .onAppear {
                     UIScrollView.appearance().bounces = false
+                    viewModel.cityName = cityName
                 }
                 .onDisappear {
                     UIScrollView.appearance().bounces = true

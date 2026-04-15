@@ -45,9 +45,9 @@
 			path = AISimpleWeatherApp;
 			sourceTree = "<group>";
 		};
-		1E223BED2F8E615B00134BA5 /* AISimpleWeatherAppTests */ = {
+		1E223BED2F8E615B00134BA5 /* WearlyWeatherTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = AISimpleWeatherAppTests;
+			path = WearlyWeatherTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -76,7 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				1E18BC3F2F8A6E1F0032D382 /* AISimpleWeatherApp */,
-				1E223BED2F8E615B00134BA5 /* AISimpleWeatherAppTests */,
+				1E223BED2F8E615B00134BA5 /* WearlyWeatherTests */,
 				1E52BBA02F8B9E5C0082CE88 /* Frameworks */,
 				1E18BC3E2F8A6E1F0032D382 /* Products */,
 			);
@@ -139,7 +139,7 @@
 				1E223BF12F8E615B00134BA5 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				1E223BED2F8E615B00134BA5 /* AISimpleWeatherAppTests */,
+				1E223BED2F8E615B00134BA5 /* WearlyWeatherTests */,
 			);
 			name = WearlyWeatherTests;
 			packageProductDependencies = (
@@ -446,12 +446,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QSDKAWDU3Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aSoft.AISimpleWeatherAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aSoft.WearlyWeatherAI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -459,7 +461,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AISimpleWeatherApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AISimpleWeatherApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WearlyWeather.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WearlyWeather";
 			};
 			name = Debug;
 		};
@@ -467,12 +469,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QSDKAWDU3Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aSoft.AISimpleWeatherAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aSoft.WearlyWeatherAI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -480,7 +484,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AISimpleWeatherApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AISimpleWeatherApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WearlyWeather.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WearlyWeather";
 			};
 			name = Release;
 		};

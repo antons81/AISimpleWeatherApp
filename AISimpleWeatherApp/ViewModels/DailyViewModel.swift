@@ -18,6 +18,7 @@ final class DailyViewModel: ObservableObject {
     @Published var errorMessage:  String?        = nil
     @Published var aiSummary: String             = ""
     @Published var isGenerating: Bool = false
+    @Published var cityName: String = ""
     
     let aiService = AIService.shared
 
@@ -51,7 +52,7 @@ final class DailyViewModel: ObservableObject {
 
     // MARK: - Public API
     func generateAISummary(for weather: ForecastItem, type: AISummaryType) async {
-        let prompt = AIPromptBuilder.weatherSummary(for: weather, type: type)
+        let prompt = AIPromptBuilder.weatherSummary(for: weather, type: type, city: cityName)
         
         // new function for streaming
         await aiService.generateSummary(prompt: prompt)

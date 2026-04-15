@@ -27,7 +27,7 @@ final class AIService: ObservableObject {
     
     private var modelContainer: ModelContainer?
     
-    private let modelConfig = LLMRegistry.llama3_2_3B_4bit
+    private let modelConfig = LLMRegistry.llama3_2_1B_4bit
     
     private let generateParameters = GenerateParameters (
         maxTokens: 512,
@@ -38,6 +38,7 @@ final class AIService: ObservableObject {
     
     // warm up model
     private func warmUpModel() async {
+        
         guard let container = modelContainer else { return }
         
         IFF_DEBUG: do {
@@ -75,32 +76,47 @@ final class AIService: ObservableObject {
     
     // preload Model
     func preloadModel() async {
-        if modelContainer != nil { return }
+        
+        guard modelContainer == nil else { return }
+        
+        MLX.GPU.clearCache()
+        
+        await MainActor.run { self.isLoading = true }
         
         do {
-            modelContainer = try await LLMModelFactory.shared.loadContainer(
-                configuration: modelConfig
-            ) { progress in
-                print("🔄 Model preloading: \(Int(progress.fractionCompleted * 100))%")
-            }
+            let container = try await Task.detached(priority: .userInitiated) {
+                        try await LLMModelFactory.shared.loadContainer(
+                            configuration: self.modelConfig
+                        ) { progress in
+                            // Прогресс печатаем в консоль (это не блокирует поток)
+                            print("🔄 Loading: \(Int(progress.fractionCompleted * 100))%")
+                        }
+                    }.value
+//            _ = try await LLMModelFactory.shared.loadContainer (
+//                configuration: modelConfig
+//            ) { progress in
+//                print("🔄 Model preloading: \(Int(progress.fractionCompleted * 100))%")
+//            }
             
-            isModelLoaded = true
             
-            IFF_DEBUG: do {
-                print("✅ AI Model preloaded successfully")
+            await MainActor.run {
+                self.modelContainer = container
+                self.isModelLoaded = true
+                self.isLoading = false
+                print("✅ AI Model preloaded and warmed up")
             }
             
             await warmUpModel()
             
             
         } catch {
-            print("❌ Preload error: \(error)")
+            print("❌ Preload error: \(error.localizedDescription)")
         }
     }
     
     // load model only once
     func loadModel() async {
-        if modelContainer != nil { return }
+        guard modelContainer == nil else { return }
         
         isLoading = true
         defer { isLoading = false }
@@ -199,6 +215,12 @@ final class AIService: ObservableObject {
             output = "Error: \(error.localizedDescription)"
             isGenerating = false
         }
+    }
+    
+    func releaseModel() {
+        self.modelContainer = nil
+        MLX.GPU.clearCache()
+        print("♻️ Model memory released")
     }
     
     // old function
