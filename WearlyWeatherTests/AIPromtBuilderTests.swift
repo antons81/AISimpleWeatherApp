@@ -11,20 +11,20 @@ import XCTest
 final class AIPromptBuilderTests: XCTestCase {
     
     func test_prompt_containsCondition() {
-        let item = makeForecastItem(description: "clear sky", temp: 293.15)
-        let prompt = AIPromptBuilder.weatherSummary(for: item, type: .normal)
+        let item = makeForecastItem(description: "clear sky".lowercased(), temp: 293.15)
+        let prompt = AIPromptBuilder.weatherSummary(for: item, type: .normal, city: "Wuppertal")
         XCTAssertTrue(prompt.contains("clear sky"))
     }
     
     func test_prompt_runnerMode_containsRunnerContext() {
-        let item = makeForecastItem(description: "light rain", temp: 283.15)
-        let prompt = AIPromptBuilder.weatherSummary(for: item, type: .runner)
+        let item = makeForecastItem(description: "light rain".lowercased(), temp: 283.15)
+        let prompt = AIPromptBuilder.weatherSummary(for: item, type: .runner, city: "Berlin")
         XCTAssertTrue(prompt.lowercased().contains("runner") || prompt.lowercased().contains("training"))
     }
     
     func test_prompt_normalMode_containsNormalContext() {
-        let item = makeForecastItem(description: "cloudy", temp: 283.15)
-        let prompt = AIPromptBuilder.weatherSummary(for: item, type: .normal)
+        let item = makeForecastItem(description: "cloudy".lowercased(), temp: 283.15)
+        let prompt = AIPromptBuilder.weatherSummary(for: item, type: .normal, city: "Hamburg")
         XCTAssertFalse(prompt.isEmpty)
     }
     

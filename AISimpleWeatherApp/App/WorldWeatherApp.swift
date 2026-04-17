@@ -19,13 +19,13 @@ struct WorldWeatherApp: App {
                     case .background:
                         print("🍏 App moved to from \(oldValue) to background")
                         aiService.releaseModel()
-                    case .inactive: break
                     case .active:
                         print("🍏 App is now active")
                         Task {
                             print("🍏 Preloading model")
                             await aiService.preloadModel()
                         }
+                    case .inactive: break
                     @unknown default:
                         break
                     }

@@ -60,9 +60,9 @@ enum AIPromptBuilder {
 
         Instructions:
         1. Answer ONLY in \(currentLanguage()) language.
-        2. Write 4-5 sentences, plain text only, no markdown, no bullet points, no headers.
-        3. Make paragraphs in text.
-        3. Give a brief summary and one practical tip with light humor.
+        2. Write 4-5 sentences.
+        3. Use only plain text. Provide the response as a continuous narrative with one line break.
+        4. Give a brief summary and one practical tip with light humor.
         
         """
     }

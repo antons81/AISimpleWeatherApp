@@ -29,7 +29,7 @@ struct LaunchScreenView: View {
                 
                 VStack {
                     Spacer()
-                    Text(aiService.isModelLoaded ? "Ready!" : "Warming up...")
+                    Text(aiService.isLoading ? modelText : "Warming up...")
                         .font(Font.body.weight(.thin))
                         .foregroundColor(.white)
                         .transition(AnyTransition.opacity.combined(with: .scale))

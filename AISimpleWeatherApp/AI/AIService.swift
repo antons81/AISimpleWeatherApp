@@ -16,7 +16,7 @@ internal import Tokenizers
 @MainActor
 final class AIService: ObservableObject {
     
-    // Singleton — одна загруженная модель на всё приложение
+    // Singleton
     static let shared = AIService()
     
     @Published var isLoading = false
@@ -85,19 +85,12 @@ final class AIService: ObservableObject {
         
         do {
             let container = try await Task.detached(priority: .userInitiated) {
-                        try await LLMModelFactory.shared.loadContainer(
-                            configuration: self.modelConfig
-                        ) { progress in
-                            // Прогресс печатаем в консоль (это не блокирует поток)
-                            print("🔄 Loading: \(Int(progress.fractionCompleted * 100))%")
-                        }
-                    }.value
-//            _ = try await LLMModelFactory.shared.loadContainer (
-//                configuration: modelConfig
-//            ) { progress in
-//                print("🔄 Model preloading: \(Int(progress.fractionCompleted * 100))%")
-//            }
-            
+                try await LLMModelFactory.shared.loadContainer(
+                    configuration: self.modelConfig
+                ) { progress in
+                    print("🔄 Loading: \(Int(progress.fractionCompleted * 100))%")
+                }
+            }.value
             
             await MainActor.run {
                 self.modelContainer = container
