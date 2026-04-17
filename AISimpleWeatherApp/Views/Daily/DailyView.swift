@@ -14,8 +14,21 @@ struct DailyView: View {
     let lon: Double
     let currentWeather: CurrentWeather
 
-    @StateObject private var viewModel = DailyViewModel()
+    @StateObject private var viewModel: DailyViewModel
     @Environment(\.dismiss) private var dismiss
+    
+    init(cityName: String, lat: Double, lon: Double, currentWeather: CurrentWeather) {
+        self.cityName = cityName
+        self.lat = lat
+        self.lon = lon
+        self.currentWeather = currentWeather
+        
+        // service and viewmodel
+        let cloudAI = CloudGeminiService()
+        let vm = DailyViewModel(service: .shared, aiService: cloudAI)
+        
+        self._viewModel = StateObject(wrappedValue: vm)
+    }
 
     var body: some View {
         ZStack {

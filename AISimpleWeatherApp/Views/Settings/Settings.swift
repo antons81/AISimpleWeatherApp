@@ -10,10 +10,13 @@ import SwiftUI
 
 struct SettingsView: View {
 
-    @AppStorage("isImperial") private var isImperial = false
-    @AppStorage("isRunner")   private var isRunner   = false
+    @AppStorage("isImperial") private var isImperial    = false
+    @AppStorage("isRunner")   private var isRunner      = false
+    @AppStorage("ai_provider")  private var provider: AIProvider = .local
     @Environment(\.dismiss)   private var dismiss
-
+    
+    private let localAIService = LocalAIService.shared
+    
     var body: some View {
         ZStack {
             AppTheme.backgroundGradient
@@ -65,10 +68,36 @@ struct SettingsView: View {
                                     .tint(AppTheme.accentGreen)
                                     .labelsHidden()
                             }
-
-                            Divider()
-                                .background(Color.white.opacity(0.07))
-                                .padding(.horizontal, 14)
+                            
+                            
+                        }
+                        .glassCard()
+                        
+                        VStack {
+                            settingsRow(
+                                icon: "sparkles",
+                                iconColor: AppTheme.accentBlue,
+                                title: "Use Gemini AI Model",
+                                subtitle: provider == .cloud ? "Gemini (Cloud)" : "Llama (Local)"
+                            ) {
+                                Toggle("", isOn: Binding(
+                                    get: { provider == .cloud },
+                                    set: { isCloud in
+                                        provider = isCloud ? .cloud : .local
+                                        localAIService.releaseModel()
+                                        // to local
+                                        if !isCloud {
+                                            Task {
+                                                print("⚙️ Settings: Switching to Local, starting preload...")
+                                                await localAIService.preloadModel()
+                                            }
+                                        }
+                                    }
+                                ))
+                                .tint(AppTheme.accentGreen)
+                                .labelsHidden()
+                            }
+                            
                         }
                         .glassCard()
 
@@ -125,7 +154,7 @@ struct SettingsView: View {
                                 icon: "info.circle",
                                 iconColor: AppTheme.textSecondary,
                                 title: "Version",
-                                subtitle: "AI Simple Weather"
+                                subtitle: "Wearly Weather AI"
                             ) {
                                 Text("1.0.0")
                                     .font(.system(size: 13, design: .rounded))

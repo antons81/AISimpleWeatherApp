@@ -31,11 +31,11 @@ struct AIForecastCard: View {
                 Spacer()
 
                 // Refresh / loading
-                if viewModel.aiService.isGenerating {
+                if viewModel.isGenerating {
                     ProgressView()
                         .tint(AppTheme.accentGreen)
                         .scaleEffect(0.7)
-                } else if !viewModel.aiService.isGenerating {
+                } else if !viewModel.isGenerating {
                     Button {
                         guard let item = weather else { return }
                         Task { await viewModel.generateAISummary(for: item, type: userType) }
@@ -48,7 +48,7 @@ struct AIForecastCard: View {
             }
 
             // Content
-            if viewModel.aiSummary.isEmpty && viewModel.aiService.isGenerating {
+            if viewModel.aiSummary.isEmpty && viewModel.isGenerating {
                 // Show Thinking until text appears
                 HStack(spacing: 8) {
                     ProgressView()
@@ -58,7 +58,7 @@ struct AIForecastCard: View {
                         .font(.system(size: 13, weight: .light, design: .rounded))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
-            } else if viewModel.aiSummary.isEmpty && !viewModel.aiService.isGenerating {
+            } else if viewModel.aiSummary.isEmpty && !viewModel.isGenerating {
                 // Button Get Tip
                 Button {
                     guard let item = weather else { return }

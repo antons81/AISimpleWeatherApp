@@ -14,10 +14,33 @@ internal import Tokenizers
 
 
 @MainActor
-final class AIService: ObservableObject {
+final class LocalAIService: ObservableObject, AIConsultant {
+    
+    @Published var isFirstLoadStarted = false
+    
+    // MARK: - AIConsultant Protocol Implementation
+    func generateWeatherSummary(for weather: ForecastItem, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws {
+        let prompt = AIPromptBuilder.weatherSummary(for: weather, type: type, city: city)
+        
+        // Using your existing MLX logic
+        guard let container = modelContainer else { return }
+        
+        _ = try await container.perform { context in
+            let input = try await context.processor.prepare(input: UserInput(messages: [["role": "user", "content": prompt]]))
+            
+            return try MLXLMCommon.generate(input: input, parameters: generateParameters, context: context) { tokens in
+                let fullText = context.tokenizer.decode(tokens: tokens)
+                Task { @MainActor in
+                    onUpdate(fullText) // Send current text to ViewModel
+                }
+                return .more
+            }
+        }
+    }
+    
     
     // Singleton
-    static let shared = AIService()
+    static let shared = LocalAIService()
     
     @Published var isLoading = false
     @Published var isModelLoaded = false
@@ -25,10 +48,10 @@ final class AIService: ObservableObject {
     @Published var isGenerating = false
     @Published var displayOutput = ""
     
+    var isReady: Bool { return isModelLoaded }
+    
     private var modelContainer: ModelContainer?
-    
     private let modelConfig = LLMRegistry.llama3_2_1B_4bit
-    
     private let generateParameters = GenerateParameters (
         maxTokens: 512,
         temperature: 0.7,
@@ -78,21 +101,22 @@ final class AIService: ObservableObject {
     func preloadModel() async {
         
         guard modelContainer == nil else { return }
+        guard !isLoading else { return }
         
         MLX.GPU.clearCache()
         
         await MainActor.run { self.isLoading = true }
         
         do {
-            let container = try await Task.detached(priority: .userInitiated) {
-                try await LLMModelFactory.shared.loadContainer(
-                    configuration: self.modelConfig
-                ) { progress in
-                    print("🔄 Loading: \(Int(progress.fractionCompleted * 100))%")
-                }
-            }.value
+            let container = try await LLMModelFactory.shared.loadContainer(
+                configuration: self.modelConfig
+            ) { progress in
+                // progress
+                print("🔄 Loading MLX Model: \(Int(progress.fractionCompleted * 100))%")
+            }
             
             await MainActor.run {
+                self.objectWillChange.send()
                 self.modelContainer = container
                 self.isModelLoaded = true
                 self.isLoading = false
@@ -104,6 +128,10 @@ final class AIService: ObservableObject {
             
         } catch {
             print("❌ Preload error: \(error.localizedDescription)")
+            await MainActor.run {
+                self.isLoading = false
+                self.isModelLoaded = true
+            }
         }
     }
     
@@ -129,6 +157,7 @@ final class AIService: ObservableObject {
     
     // new streaming function
     func generateSummary(prompt: String) async {
+        print("Running Local AI Service")
         
         guard !isGenerating else {
             print("⚠️ Already generating, skip")
@@ -212,6 +241,8 @@ final class AIService: ObservableObject {
     
     func releaseModel() {
         self.modelContainer = nil
+        self.isModelLoaded = false
+        self.isLoading = false
         MLX.GPU.clearCache()
         print("♻️ Model memory released")
     }

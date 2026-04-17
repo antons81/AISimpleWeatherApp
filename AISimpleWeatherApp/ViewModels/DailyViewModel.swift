@@ -4,6 +4,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 // MARK: - DailyViewModel
 
@@ -17,45 +18,62 @@ final class DailyViewModel: ObservableObject {
     @Published var isLoading:     Bool           = false
     @Published var errorMessage:  String?        = nil
     @Published var aiSummary: String             = ""
-    @Published var isGenerating: Bool = false
-    @Published var cityName: String = ""
+    @Published var isGenerating: Bool            = false
+    @Published var cityName: String              = ""
+    @Published var isAILoading: Bool             = false
     
-    let aiService = AIService.shared
+    // MARK: Storage
+    @AppStorage("ai_provider") private var aiProvider: AIProvider = .local
+    
+    let aiService: AIConsultant
 
     // MARK: Private
-
+    private let localAI = LocalAIService.shared
+    private let geminiAI = CloudGeminiService()
     private var cancellables = Set<AnyCancellable>()
     private let service: NetworkService
     
 
     // MARK: Init
     
-    init(service: NetworkService? = nil) {
+    init(service: NetworkService? = nil, aiService: AIConsultant) {
         self.service = service ?? .shared
-        
-        // subscribe to output AIService
-        aiService.$displayOutput
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] value in
-                self?.aiSummary = value
-            }
-            .store(in: &cancellables)
-        
-        aiService.$isGenerating
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] value in
-                    self?.isGenerating = value
-                }
-                .store(in: &cancellables)
-        
+        self.aiService = aiService
+        self.cancellables = Set<AnyCancellable>()
     }
 
     // MARK: - Public API
     func generateAISummary(for weather: ForecastItem, type: AISummaryType) async {
-        let prompt = AIPromptBuilder.weatherSummary(for: weather, type: type, city: cityName)
         
-        // new function for streaming
-        await aiService.generateSummary(prompt: prompt)
+        await MainActor.run { isGenerating = true }
+        aiSummary = "" // Clear previous text
+        
+        do {
+                    if aiProvider == .local {
+                        // ПРОВЕРКА: загружена ли локальная модель?
+                        if localAI.isModelLoaded {
+                            print("🤖 Request to Llama...")
+                            try await localAI.generateWeatherSummary(for: weather, type: type, city: cityName) { [weak self] update in
+                                self?.aiSummary = update
+                            }
+                        } else {
+                            // Если локал выбран, но не готов — можно либо выдать ошибку,
+                            // либо временно отправить запрос в Cloud
+                            self.aiSummary = "Local model is not available. Try to refresh."
+                        }
+                    } else {
+                        print("☁️ Request to Gemini Cloud...")
+                        _ = try await geminiAI.generateWeatherSummary(for: weather, type: type, city: cityName) {  [weak self] result in
+                             self?.aiSummary = result
+                        }
+                        
+                    }
+                } catch {
+                    print("❌ AI Error: \(error)")
+                    await MainActor.run { self.aiSummary = "generation failed" }
+                }
+                
+                await MainActor.run { isGenerating = false }
     }
 
 

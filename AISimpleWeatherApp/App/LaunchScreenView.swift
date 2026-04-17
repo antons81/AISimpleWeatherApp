@@ -10,36 +10,44 @@ import Combine
 
 struct LaunchScreenView: View {
     
-    @State private var modelText = "Loading..."
-    @State private var hasTimeElapsed = false
-    @ObservedObject var aiService = AIService.shared
+    @EnvironmentObject var localAIService: LocalAIService
+    @AppStorage("ai_provider") private var aiProvider: AIProvider = .local
+    @Binding var isReady: Bool
     
     var body: some View {
-        if aiService.isModelLoaded {
-            NavigationStack {
-                MainView()
+        ZStack {
+            Image("startImage")
+                .resizable()
+                .ignoresSafeArea()
+            
+            VStack {
+                Spacer()
+                Text("Warming up...")
+                    .foregroundColor(.white)
+                    .font(.custom("serif", size: 16).weight(.thin))
+                    .padding(.bottom, 20)
+                ProgressView().tint(.white)
             }
-            .transition(.opacity)
-        } else {
-            ZStack {
-                Image("startImage")
-                    .resizable()
-                    .edgesIgnoringSafeArea(.all)
-                    .aspectRatio(contentMode: .fill)
-                
-                VStack {
-                    Spacer()
-                    Text(aiService.isLoading ? modelText : "Warming up...")
-                        .font(Font.body.weight(.thin))
-                        .foregroundColor(.white)
-                        .transition(AnyTransition.opacity.combined(with: .scale))
-                        .id("text-component" + modelText)
-                        
-                    
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                        .tint(Color.white)
-                        .padding(32)
+            .padding(.bottom, 50)
+        }
+        .onAppear {
+            if aiProvider == .cloud {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    isReady = true
+                }
+            } else {
+                if localAIService.isModelLoaded {
+                    isReady = true
+                } else {
+                    Task { await localAIService.preloadModel() }
+                }
+            }
+        }
+        
+        .onChange(of: localAIService.isModelLoaded) { _, loaded in
+            if loaded && aiProvider == .local {
+                withAnimation {
+                    isReady = true
                 }
             }
         }
@@ -47,5 +55,6 @@ struct LaunchScreenView: View {
 }
 
 #Preview {
-    LaunchScreenView()
+    let ready: Binding<Bool> = .constant(false)
+    LaunchScreenView(isReady: ready).environmentObject(LocalAIService.shared)
 }

@@ -11,20 +11,51 @@ import MLX
 // MARK: - Double + Temperature
 
 extension Double {
-
-    /// Converts Kelvin → Celsius string, e.g. "22℃"
+    
+    // Kelvin to Celsius Apple Style
     var toCelsiusString: String {
-        "\((self - 273.15).formatted(.number.precision(.fractionLength(0))))℃"
+        let kelvin = Measurement(value: self, unit: UnitTemperature.kelvin)
+        let celsius = kelvin.converted(to: .celsius)
+        
+        let formatter = MeasurementFormatter()
+        formatter.unitOptions = .providedUnit // using only celsius
+        formatter.numberFormatter.maximumFractionDigits = 0 // no floating number
+        
+        return formatter.string(from: celsius)
     }
 
-    /// Converts Kelvin → Fahrenheit string, e.g. "72℉"
+    // Kelvin to Fahrenheit
     var toFahrenheitString: String {
-        let f = (self - 273.15) * 1.8 + 32
-        return "\(f.formatted(.number.precision(.fractionLength(0))))℉"
+        let kelvin = Measurement(value: self, unit: UnitTemperature.kelvin)
+        let fahrenheit = kelvin.converted(to: .fahrenheit)
+        
+        let formatter = MeasurementFormatter()
+        formatter.unitOptions = .providedUnit
+        formatter.numberFormatter.maximumFractionDigits = 0
+        
+        return formatter.string(from: fahrenheit)
     }
 
-    var toString: String { String(self) }
+    var toString: String {
+        self.formatted(.number) // iOS 15+
+    }
 }
+
+//extension Double {
+//
+//    /// Converts Kelvin → Celsius string, e.g. "22℃"
+//    var toCelsiusString: String {
+//        "\((self - 273.15).formatted(.number.precision(.fractionLength(0))))℃"
+//    }
+//
+//    /// Converts Kelvin → Fahrenheit string, e.g. "72℉"
+//    var toFahrenheitString: String {
+//        let f = (self - 273.15) * 1.8 + 32
+//        return "\(f.formatted(.number.precision(.fractionLength(0))))℉"
+//    }
+//
+//    var toString: String { String(self) }
+//}
 
 // MARK: - String + Formatting
 

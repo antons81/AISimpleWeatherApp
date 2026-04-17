@@ -61,8 +61,9 @@ enum AIPromptBuilder {
         Instructions:
         1. Answer ONLY in \(currentLanguage()) language.
         2. Write 4-5 sentences.
-        3. Use only plain text. Provide the response as a continuous narrative with one line break.
-        4. Give a brief summary and one practical tip with light humor.
+        3. Use only plain text.
+        4. Use bullet points only for lists of more than 3 items, otherwise, use descriptive paragraphs.
+        5. Give a brief summary and one practical tip with light humor.
         
         """
     }
