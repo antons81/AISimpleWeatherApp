@@ -16,7 +16,6 @@ internal import Tokenizers
 @MainActor
 final class LocalAIService: ObservableObject, AIConsultant {
     
-    @Published var isFirstLoadStarted = false
     
     // MARK: - AIConsultant Protocol Implementation
     func generateWeatherSummary(for weather: ForecastItem, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws {

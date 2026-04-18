@@ -34,8 +34,7 @@ struct WearlyWeatherApp: App {
     
     var body: some Scene {
         WindowGroup {
-            
-            Group { // Используем Group вместо ZStack
+            Group {
                 if !isAppReady {
                     LaunchScreenView(isReady: $isAppReady)
                 } else {
@@ -57,7 +56,7 @@ struct WearlyWeatherApp: App {
         switch phase {
         case .active:
             if aiProvider == .local && !localAIService.isModelLoaded {
-                print("🔄 App Active: Loading Local AI as per settings")
+                print("🔄 App Active: Loading local AI...")
                 Task { await localAIService.preloadModel() }
             }
             

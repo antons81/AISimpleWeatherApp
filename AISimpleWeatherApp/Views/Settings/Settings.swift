@@ -15,6 +15,8 @@ struct SettingsView: View {
     @AppStorage("ai_provider")  private var provider: AIProvider = .local
     @Environment(\.dismiss)   private var dismiss
     
+    @State private var showLoadingOverlay: Bool = false
+    
     private let localAIService = LocalAIService.shared
     
     var body: some View {
@@ -69,7 +71,6 @@ struct SettingsView: View {
                                     .labelsHidden()
                             }
                             
-                            
                         }
                         .glassCard()
                         
@@ -87,9 +88,20 @@ struct SettingsView: View {
                                         localAIService.releaseModel()
                                         // to local
                                         if !isCloud {
+                                            withAnimation(.easeInOut(duration: 0.4)) {
+                                                showLoadingOverlay = true
+                                            }
                                             Task {
                                                 print("⚙️ Settings: Switching to Local, starting preload...")
                                                 await localAIService.preloadModel()
+                                                
+                                                if localAIService.isModelLoaded {
+                                                    withAnimation(.easeInOut(duration: 0.4)) {
+                                                        DispatchQueue.main.async {
+                                                            showLoadingOverlay = false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -167,7 +179,18 @@ struct SettingsView: View {
                     .padding(.bottom, 32)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .blur(radius: showLoadingOverlay ? 20 : 0)
+            
+            if showLoadingOverlay {
+                OverlayScreen()
+                    .transition(.opacity)
+                    .zIndex(10)
+                    .ignoresSafeArea(edges: .all)
+                    .opacity(showLoadingOverlay ? 0.3 : 0)
+            }
         }
+        .animation(.easeInOut(duration: 0.4), value: showLoadingOverlay)
     }
 
     // MARK: - Helpers
@@ -283,6 +306,38 @@ struct SettingsView: View {
     }
 }
 
+struct OverlayScreen: View {
+    var body: some View {
+        ZStack {
+            
+            AppTheme.accentGreen
+                .opacity(0.15)
+                .ignoresSafeArea()
+            
+            VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark)).ignoresSafeArea()
+
+            VStack(spacing: 25) {
+                ProgressView()
+                    .tint(AppTheme.textPrimary)
+                    .scaleEffect(1.5)
+                
+                Text("Loading local AI...")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(AppTheme.textPrimary)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .presentationBackground(.clear)
+    }
+}
+
+struct VisualEffectView: UIViewRepresentable {
+    var effect: UIVisualEffect?
+    func makeUIView(context: UIViewRepresentableContext<Self>) -> UIVisualEffectView { UIVisualEffectView() }
+    func updateUIView(_ uiView: UIVisualEffectView, context: UIViewRepresentableContext<Self>) { uiView.effect = effect }
+}
+
 #Preview {
-    SettingsView()
+    //SettingsView()
+    OverlayScreen()
 }
