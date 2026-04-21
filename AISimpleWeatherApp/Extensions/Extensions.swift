@@ -95,7 +95,8 @@ extension Date {
     
     var formattedTime: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm" // 24-часовой формат
+        formatter.dateFormat = "HH:mm"
+        formatter.timeZone = TimeZone.current
         return formatter.string(from: self)
     }
 }

@@ -48,7 +48,7 @@ struct MainView: View {
                     Spacer()
                     ContentUnavailableView(
                         "No Cities",
-                        systemImage: "cloud.slash",
+                        systemImage: "icloud.slash",
                         description: Text("Pull to refresh or check your search.")
                     )
                     .foregroundStyle(AppTheme.textSecondary)

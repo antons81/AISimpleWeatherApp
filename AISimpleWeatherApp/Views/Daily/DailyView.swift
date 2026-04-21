@@ -16,6 +16,7 @@ struct DailyView: View {
 
     @StateObject private var viewModel: DailyViewModel
     @Environment(\.dismiss) private var dismiss
+    let service = NetworkService.shared
     
     init(cityName: String, lat: Double, lon: Double, currentWeather: CurrentWeather) {
         self.cityName = cityName
@@ -25,7 +26,7 @@ struct DailyView: View {
         
         // service and viewmodel
         let cloudAI = CloudGeminiService()
-        let vm = DailyViewModel(service: .shared, aiService: cloudAI)
+        let vm = DailyViewModel(service: service, aiService: cloudAI)
         
         self._viewModel = StateObject(wrappedValue: vm)
     }

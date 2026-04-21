@@ -5,6 +5,11 @@
 import Foundation
 import Combine
 
+protocol NetworkServiceProtocol: Sendable {
+    func fetchCurrentWeather(for city: String) -> AnyPublisher<CurrentWeather, NetworkError>
+    func fetchForecast(lat: Double, lon: Double) -> AnyPublisher<[ForecastItem], NetworkError>
+}
+
 // MARK: - API Endpoints
 
 private enum Endpoint {
@@ -61,10 +66,10 @@ enum NetworkError: LocalizedError {
 
 // MARK: - NetworkService
 
-final class NetworkService: Sendable {
+final class NetworkService: NetworkServiceProtocol {
 
     static let shared = NetworkService()
-    private init() {}
+    init() {}
 
     private let decoder: JSONDecoder = {
         let d = JSONDecoder()
@@ -109,3 +114,4 @@ final class NetworkService: Sendable {
             .eraseToAnyPublisher()
     }
 }
+

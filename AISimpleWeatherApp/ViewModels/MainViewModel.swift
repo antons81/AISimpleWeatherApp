@@ -17,7 +17,6 @@ final class MainViewModel: ObservableObject {
     // MARK: Published state
 
     @Published var weathers:     [CurrentWeather] = []
-    //@Published var isImperial:   Bool             = UserDefaults.isImperial // not working
     @Published var isLoading:    Bool             = false
     @Published var errorMessage: String?          = nil
     @Published var searchText:   String           = ""
@@ -37,12 +36,12 @@ final class MainViewModel: ObservableObject {
     // MARK: Private
 
     private var cancellables = Set<AnyCancellable>()
-    private let service: NetworkService
+    private let service: NetworkServiceProtocol
 
     // MARK: Init (dependency injectable for testability)
 
-    init(service: NetworkService? = nil) {
-        self.service = service ?? .shared
+    init(service: NetworkServiceProtocol? = nil) {
+        self.service = service ?? NetworkService.shared
     }
 
     // MARK: - Public API

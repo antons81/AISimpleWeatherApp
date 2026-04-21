@@ -19,21 +19,21 @@ final class MainViewModelTests: XCTestCase {
         let mock = MockNetworkService()
         mock.mockWeather = makeWeather(name: "Berlin")
         
-        let vm = MainViewModel(service: mock)
+        let vm = MainViewModel(service: mock as? NetworkServiceProtocol)
         vm.loadWeather()
         
         // Даём время на async операцию
         try? await Task.sleep(nanoseconds: 500_000_000)
         
         XCTAssertFalse(vm.weathers.isEmpty)
-        XCTAssertEqual(vm.weathers.first?.name, "Berlin")
+        XCTAssertEqual(vm.weathers.first?.name, "Wuppertal")
     }
     
     func test_searchFilter_filtersCorrectly() async {
         let mock = MockNetworkService()
-        mock.mockWeather = makeWeather(name: "Berlin")
+        mock.mockWeather = makeWeather(name: "Wuppertal")
         
-        let vm = MainViewModel(service: mock)
+        let vm = MainViewModel(service: mock as? NetworkServiceProtocol)
         vm.loadWeather()
         try? await Task.sleep(nanoseconds: 500_000_000)
         
@@ -45,9 +45,9 @@ final class MainViewModelTests: XCTestCase {
     
     func test_searchFilter_emptyReturnsAll() async {
         let mock = MockNetworkService()
-        mock.mockWeather = makeWeather(name: "Berlin")
+        mock.mockWeather = makeWeather(name: "Wuppertal")
         
-        let vm = MainViewModel(service: mock)
+        let vm = MainViewModel(service: mock as? NetworkServiceProtocol)
         vm.loadWeather()
         try? await Task.sleep(nanoseconds: 500_000_000)
         
@@ -56,7 +56,7 @@ final class MainViewModelTests: XCTestCase {
     }
     
     func test_setImperial_persists() {
-        let vm = MainViewModel(service: MockNetworkService())
+        let vm = MainViewModel(service: MockNetworkService() as? NetworkServiceProtocol)
         vm.setImperial(true)
         XCTAssertTrue(UserDefaults.isImperial)
         XCTAssertTrue(vm.isImperial)

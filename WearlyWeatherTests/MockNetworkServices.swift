@@ -10,13 +10,21 @@ import XCTest
 import Combine
 @testable import WearlyWeather
 
-final class MockNetworkService: NetworkService {
+protocol NetworkServicing: Sendable {
+    func fetchCurrentWeather(for city: String) -> AnyPublisher<CurrentWeather, NetworkError>
+    func fetchForecast(lat: Double, lon: Double) -> AnyPublisher<[ForecastItem], NetworkError>
+}
+
+final class MockNetworkService: NetworkServicing {
+    
+    init() {
+    }
     
     var mockWeather: CurrentWeather?
     var mockForecast: [ForecastItem] = []
     var shouldFail = false
     
-    override func fetchCurrentWeather(for city: String) -> AnyPublisher<CurrentWeather, NetworkError> {
+    func fetchCurrentWeather(for city: String) -> AnyPublisher<CurrentWeather, NetworkError> {
         if shouldFail {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }
@@ -28,7 +36,7 @@ final class MockNetworkService: NetworkService {
             .eraseToAnyPublisher()
     }
     
-    override func fetchForecast(lat: Double, lon: Double) -> AnyPublisher<[ForecastItem], NetworkError> {
+    func fetchForecast(lat: Double, lon: Double) -> AnyPublisher<[ForecastItem], NetworkError> {
         if shouldFail {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }

@@ -14,17 +14,17 @@ final class ExtensionsTests: XCTestCase {
     
     func test_toCelsius_fromKelvin() {
         let kelvin: Double = 293.15
-        XCTAssertEqual(kelvin.toCelsiusString, "20℃")
+        XCTAssertEqual(kelvin.toCelsiusString, "20\u{00B0}C")
     }
     
     func test_toFahrenheit_fromKelvin() {
         let kelvin: Double = 293.15
-        XCTAssertEqual(kelvin.toFahrenheitString, "68℉")
+        XCTAssertEqual(kelvin.toFahrenheitString, "68\u{00B0}F")
     }
     
     func test_absoluteZero_celsius() {
         let kelvin: Double = 0
-        XCTAssertEqual(kelvin.toCelsiusString, "-273℃")
+        XCTAssertEqual(kelvin.toCelsiusString, "-273\u{00B0}C")
     }
     
     // MARK: - String
