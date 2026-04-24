@@ -50,15 +50,13 @@ final class DailyViewModel: ObservableObject {
         
         do {
                     if aiProvider == .local {
-                        // ПРОВЕРКА: загружена ли локальная модель?
+                        
                         if localAI.isModelLoaded {
                             print("🤖 Request to Llama...")
                             try await localAI.generateWeatherSummary(for: weather, type: type, city: cityName) { [weak self] update in
                                 self?.aiSummary = update
                             }
                         } else {
-                            // Если локал выбран, но не готов — можно либо выдать ошибку,
-                            // либо временно отправить запрос в Cloud
                             self.aiSummary = "Local model is not available. Try to refresh."
                         }
                     } else {

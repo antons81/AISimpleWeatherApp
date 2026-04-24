@@ -26,6 +26,8 @@
 		1E9DE5A32F925BDF0034E7FF /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 1E9DE5A22F925BDF0034E7FF /* FirebaseInAppMessaging-Beta */; };
 		1E9DE5A52F925BDF0034E7FF /* FirebaseMLModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = 1E9DE5A42F925BDF0034E7FF /* FirebaseMLModelDownloader */; };
 		1E9DE5A72F925BDF0034E7FF /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 1E9DE5A62F925BDF0034E7FF /* FirebaseMessaging */; };
+		1EDC85D12F9C049A0085BAAD /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */; };
+		1EDC85D22F9C049A0085BAAD /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +43,7 @@
 /* Begin PBXFileReference section */
 		1E18BC3D2F8A6E1F0032D382 /* WearlyWeather.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WearlyWeather.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E223BEC2F8E615B00134BA5 /* WearlyWeatherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WearlyWeatherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -109,6 +112,7 @@
 		1E18BC342F8A6E1F0032D382 = {
 			isa = PBXGroup;
 			children = (
+				1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */,
 				1E18BC3F2F8A6E1F0032D382 /* AISimpleWeatherApp */,
 				1E223BED2F8E615B00134BA5 /* WearlyWeatherTests */,
 				1E52BBA02F8B9E5C0082CE88 /* Frameworks */,
@@ -247,6 +251,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EDC85D12F9C049A0085BAAD /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,6 +259,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EDC85D22F9C049A0085BAAD /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,6 +293,7 @@
 /* Begin XCBuildConfiguration section */
 		1E18BC462F8A6E200032D382 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -350,6 +357,7 @@
 		};
 		1E18BC472F8A6E200032D382 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -406,6 +414,7 @@
 		};
 		1E18BC492F8A6E200032D382 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -451,6 +460,7 @@
 		};
 		1E18BC4A2F8A6E200032D382 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -496,6 +506,7 @@
 		};
 		1E223BF32F8E615B00134BA5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1EDC85D02F9C049A0085BAAD /* Secrets.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";

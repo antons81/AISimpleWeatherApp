@@ -24,7 +24,6 @@ struct WearlyWeatherApp: App {
     
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State private var isSplashScreenDismissed = false
     
     @AppStorage("ai_provider") private var aiProvider: AIProvider = .local
     @StateObject private var localAIService = LocalAIService.shared // AI Service

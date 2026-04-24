@@ -81,31 +81,34 @@ struct SettingsView: View {
                                 title: "Use Gemini AI Model",
                                 subtitle: provider == .cloud ? "Gemini (Cloud)" : "Llama (Local)"
                             ) {
-                                Toggle("", isOn: Binding(
-                                    get: { provider == .cloud },
-                                    set: { isCloud in
-                                        provider = isCloud ? .cloud : .local
-                                        localAIService.releaseModel()
-                                        // to local
-                                        if !isCloud {
-                                            withAnimation(.easeInOut(duration: 0.4)) {
-                                                showLoadingOverlay = true
-                                            }
-                                            Task {
-                                                print("⚙️ Settings: Switching to Local, starting preload...")
-                                                await localAIService.preloadModel()
-                                                
-                                                if localAIService.isModelLoaded {
-                                                    withAnimation(.easeInOut(duration: 0.4)) {
-                                                        DispatchQueue.main.async {
-                                                            showLoadingOverlay = false
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                ))
+                                Toggle("", isOn: .mapped($provider, toCase: .cloud, onFalseValue: .local) { isCloud in
+                                    handleProviderChange(isCloud: isCloud)
+                                })
+//                                Toggle("", isOn: Binding(
+//                                    get: { provider == .cloud },
+//                                    set: { isCloud in
+//                                        provider = isCloud ? .cloud : .local
+//                                        localAIService.releaseModel()
+//                                        // to local
+//                                        if !isCloud {
+//                                            withAnimation(.easeInOut(duration: 0.4)) {
+//                                                showLoadingOverlay = true
+//                                            }
+//                                            Task {
+//                                                print("⚙️ Settings: Switching to Local, starting preload...")
+//                                                await localAIService.preloadModel()
+//                                                
+//                                                if localAIService.isModelLoaded {
+//                                                    withAnimation(.easeInOut(duration: 0.4)) {
+//                                                        DispatchQueue.main.async {
+//                                                            showLoadingOverlay = false
+//                                                        }
+//                                                    }
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                ))
                                 .tint(AppTheme.accentGreen)
                                 .labelsHidden()
                             }
@@ -194,6 +197,35 @@ struct SettingsView: View {
     }
 
     // MARK: - Helpers
+    
+    private func handleProviderChange(isCloud: Bool) {
+        if isCloud {
+            // Switching to Cloud
+            localAIService.releaseModel()
+            withAnimation {
+                showLoadingOverlay = false
+            }
+        } else {
+            // Switching to Local
+            withAnimation(.easeInOut(duration: 0.4)) {
+                showLoadingOverlay = true
+            }
+            
+            Task {
+                print("⚙️ Settings: Preloading Local Model...")
+                await localAIService.preloadModel()
+                
+                // Проверяем, не переключил ли пользователь обратно на облако, пока шла загрузка
+                if provider == .local && localAIService.isModelLoaded {
+                    await MainActor.run {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            showLoadingOverlay = false
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @ViewBuilder
     private func sectionLabel(_ text: String) -> some View {

@@ -54,7 +54,7 @@ struct LaunchScreenView: View {
     }
 }
 
-#Preview {
-    let ready: Binding<Bool> = .constant(false)
-    LaunchScreenView(isReady: ready).environmentObject(LocalAIService.shared)
-}
+//#Preview {
+//    let ready: Binding<Bool> = .constant(false)
+//    LaunchScreenView(isReady: ready).environmentObject(LocalAIService.shared)
+//}

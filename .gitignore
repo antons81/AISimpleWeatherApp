@@ -6,6 +6,7 @@
 xcuserdata/
 GoogleService-Info.plist
 
+*.xcconfig
 
 ## Obj-C/Swift specific
 *.hmap

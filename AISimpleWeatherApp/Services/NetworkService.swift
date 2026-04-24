@@ -12,13 +12,22 @@ protocol NetworkServiceProtocol: Sendable {
 
 // MARK: - API Endpoints
 
+enum Configuration {
+    static var apiKey: String {
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String else {
+            fatalError("API Key not found in Info.plist")
+        }
+        return key
+    }
+}
+
 private enum Endpoint {
     case currentWeather(city: String)
     case forecast(lat: Double, lon: Double)
 
     private static let host   = "api.openweathermap.org"
     // ⚠️ Move this key to a .xcconfig / Info.plist before shipping to production
-    private static let apiKey = "0cd74bf29e43ef1ad6afd6861cc99eb2"
+    private static let apiKey = Configuration.apiKey
 
     var url: URL? {
         var components = URLComponents()

@@ -8,8 +8,46 @@ import MLXLMCommon
 import MLXLLM
 import MLX
 
-// MARK: - Double + Temperature
 
+// Binding
+
+extension Binding where Value == Bool {
+    init<T>(value: Binding<T?>) {
+        self.init {
+            value.wrappedValue != nil
+        } set: { newValue in
+            if !newValue {
+                value.wrappedValue = nil
+            }
+        }
+    }
+}
+
+extension Binding {
+    /// Creates a Bool binding for a specific enum case.
+    /// - Parameters:
+    ///   - binding: The source binding (e.g., your enum).
+    ///   - caseValue: The value that represents 'true'.
+    ///   - onFalseValue: The value to set when toggled off.
+    ///   - action: Closure for side effects.
+    static func mapped<T: Equatable>(
+        _ binding: Binding<T>,
+        toCase caseValue: T,
+        onFalseValue: T,
+        action: @escaping (Bool) -> Void
+    ) -> Binding<Bool> where Value == Bool {
+        return Binding<Bool>(
+            get: { binding.wrappedValue == caseValue },
+            set: { newValue in
+                binding.wrappedValue = newValue ? caseValue : onFalseValue
+                action(newValue)
+            }
+        )
+    }
+}
+
+
+// MARK: - Double + Temperature
 extension Double {
     
     // Kelvin to Celsius Apple Style
@@ -41,24 +79,7 @@ extension Double {
     }
 }
 
-//extension Double {
-//
-//    /// Converts Kelvin → Celsius string, e.g. "22℃"
-//    var toCelsiusString: String {
-//        "\((self - 273.15).formatted(.number.precision(.fractionLength(0))))℃"
-//    }
-//
-//    /// Converts Kelvin → Fahrenheit string, e.g. "72℉"
-//    var toFahrenheitString: String {
-//        let f = (self - 273.15) * 1.8 + 32
-//        return "\(f.formatted(.number.precision(.fractionLength(0))))℉"
-//    }
-//
-//    var toString: String { String(self) }
-//}
-
 // MARK: - String + Formatting
-
 extension String {
 
     /// Capitalises only the very first character of the string.
@@ -101,26 +122,25 @@ extension Date {
     }
 }
 
-//public func print(_ items: Any..., separator: String = " ", terminator: String = "\n") {
-//    #if DEBUG
-//        let output = items.map { "\($0)" }.joined(separator: separator)
-//        Swift.print(output, terminator: terminator)
-//    #else
-//        Swift.print("RELEASE MODE")
-//    #endif
-//}
+nonisolated public func print(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+    #if DEBUG
+        let output = items.map { "\($0)" }.joined(separator: separator)
+        Swift.print(output, terminator: terminator)
+    #else
+        Swift.print("RELEASE MODE")
+    #endif
+}
 
 
-//extension LLMRegistry {
-//    
-//    static let qwen3_0_6b_4bit = ModelConfiguration(
-//        id: "mlx-community/Qwen3-0.6B-4bit",
-//        defaultPromptFormat: .
-//    )
-//    
-//    // Можно добавить и другие:
-//    static let qwen3_1_7b_4bit = ModelConfiguration(
-//        id: "mlx-community/Qwen3-1.7B-4bit",
-//        defaultPromptFormat: .qwen
-//    )
-//}
+extension LLMRegistry {
+    
+    static let qwen3_0_6b_4bit = ModelConfiguration(
+        id: "mlx-community/Qwen3-0.6B-4bit",
+        defaultPrompt: "Why is the sky blue?"
+    )
+    
+    static let qwen3_1_7b_4bit = ModelConfiguration(
+        id: "mlx-community/Qwen3-1.7B-4bit",
+        defaultPrompt: "Why is the sky blue?"
+    )
+}

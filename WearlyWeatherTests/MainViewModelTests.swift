@@ -17,7 +17,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_loadWeather_populatesWeathers() async {
         let mock = MockNetworkService()
-        mock.mockWeather = makeWeather(name: "Berlin")
+        mock.mockWeather = makeWeather(name: "Wuppertal")
         
         let vm = MainViewModel(service: mock as? NetworkServiceProtocol)
         vm.loadWeather()
@@ -37,9 +37,9 @@ final class MainViewModelTests: XCTestCase {
         vm.loadWeather()
         try? await Task.sleep(nanoseconds: 500_000_000)
         
-        vm.searchText = "Ber"
+        vm.searchText = "Wup"
         XCTAssertTrue(vm.filteredWeathers.allSatisfy {
-            $0.name?.contains("Ber") ?? false
+            $0.name?.contains("Wup") ?? false
         })
     }
     
