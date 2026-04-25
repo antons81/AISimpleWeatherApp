@@ -16,6 +16,5 @@ enum AIProvider: String, CaseIterable {
 
 protocol AIConsultant {
     var isReady: Bool { get }
-    // Callback 'onUpdate' will handle streaming text
-    func generateWeatherSummary(for weather: ForecastItem, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws
+    func generateWeatherSummary(for weather: WeatherContext, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws
 }

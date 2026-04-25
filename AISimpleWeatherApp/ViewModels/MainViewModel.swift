@@ -18,14 +18,13 @@ final class MainViewModel: ObservableObject {
 
     @Published var weathers:     [CurrentWeather] = []
     @Published var isLoading:    Bool             = false
-    @Published var errorMessage: String?          = nil
+    @Published var errorMessage: Error?           = nil
     @Published var searchText:   String           = ""
     
     // get metric value
     @AppStorage("isImperial") var isImperial = false
 
     // MARK: Computed — filtered list driven by searchText
-
     var filteredWeathers: [CurrentWeather] {
         guard !searchText.isEmpty else { return weathers }
         return weathers.filter {
@@ -34,24 +33,21 @@ final class MainViewModel: ObservableObject {
     }
 
     // MARK: Private
-
     private var cancellables = Set<AnyCancellable>()
     private let service: NetworkServiceProtocol
 
     // MARK: Init (dependency injectable for testability)
-
     init(service: NetworkServiceProtocol? = nil) {
         self.service = service ?? NetworkService.shared
     }
 
     // MARK: - Public API
-
     /// Load weather for all cities in parallel, then merge results.
     func loadWeather() {
         isLoading    = true
         errorMessage = nil
 
-        let publishers = City.allNames.map {
+        let publishers = City.allCities.map {
             service.fetchCurrentWeather(for: $0)
                 .map { Optional($0) }
                 .replaceError(with: nil)  // individual city failure does not cancel all

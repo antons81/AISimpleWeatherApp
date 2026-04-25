@@ -9,6 +9,7 @@ struct ForecastResponse: Codable {
     let list: [ForecastItem]
 }
 
+
 // MARK: - ForecastItem (one 3-hour slot)
 
 struct ForecastItem: Codable, Identifiable {
@@ -71,3 +72,4 @@ struct ForecastWind: Codable {
     let speed: Double?
     let deg: Int?
 }
+

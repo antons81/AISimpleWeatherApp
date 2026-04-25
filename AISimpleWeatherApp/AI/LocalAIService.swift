@@ -18,20 +18,14 @@ final class LocalAIService: ObservableObject, AIConsultant {
     
     
     // MARK: - AIConsultant Protocol Implementation
-    func generateWeatherSummary(for weather: ForecastItem, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws {
+    func generateWeatherSummary(for weather: WeatherContext, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws {
         let prompt = AIPromptBuilder.weatherSummary(for: weather, type: type, city: city)
-        
-        // Using your existing MLX logic
         guard let container = modelContainer else { return }
-        
         _ = try await container.perform { context in
             let input = try await context.processor.prepare(input: UserInput(messages: [["role": "user", "content": prompt]]))
-            
             return try MLXLMCommon.generate(input: input, parameters: generateParameters, context: context) { tokens in
                 let fullText = context.tokenizer.decode(tokens: tokens)
-                Task { @MainActor in
-                    onUpdate(fullText) // Send current text to ViewModel
-                }
+                Task { @MainActor in onUpdate(fullText) }
                 return .more
             }
         }

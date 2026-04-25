@@ -93,15 +93,20 @@ struct MainView: View {
             SettingsView()
         }
         .task { viewModel.loadWeather() }
-        .alert(
-            "Error",
-            isPresented: Binding(
-                get: { viewModel.errorMessage != nil },
-                set: { if !$0 { viewModel.errorMessage = nil } }
-            ),
-            actions: { Button("OK", role: .cancel) {} },
-            message: { Text(viewModel.errorMessage ?? "") }
-        )
+        .alert("", isPresented: Binding(value: $viewModel.errorMessage), actions: {
+            Button("OK", role: .cancel) {}
+        }, message: {
+            Text(viewModel.errorMessage?.localizedDescription ?? "")
+        })
+//        .alert(
+//            "Error",
+//            isPresented: Binding(
+//                get: { viewModel.errorMessage != nil },
+//                set: { if !$0 { viewModel.errorMessage = nil } }
+//            ),
+//            actions: { Button("OK", role: .cancel) {} },
+//            message: { Text(viewModel.errorMessage ?? "") }
+//        )
     }
 
     // MARK: - Top bar
@@ -172,8 +177,7 @@ struct MainView: View {
 extension View {
     func placeholder<Content: View>(
         when shouldShow: Bool,
-        @ViewBuilder placeholder: () -> Content
-    ) -> some View {
+        @ViewBuilder placeholder: () -> Content) -> some View {
         ZStack(alignment: .leading) {
             placeholder().opacity(shouldShow ? 1 : 0)
             self

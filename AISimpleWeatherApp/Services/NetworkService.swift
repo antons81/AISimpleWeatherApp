@@ -8,6 +8,7 @@ import Combine
 protocol NetworkServiceProtocol: Sendable {
     func fetchCurrentWeather(for city: String) -> AnyPublisher<CurrentWeather, NetworkError>
     func fetchForecast(lat: Double, lon: Double) -> AnyPublisher<[ForecastItem], NetworkError>
+    func fetchOneCall(lat: Double, lon: Double) -> AnyPublisher<OneCallResponse, NetworkError>
 }
 
 // MARK: - API Endpoints
@@ -24,9 +25,9 @@ enum Configuration {
 private enum Endpoint {
     case currentWeather(city: String)
     case forecast(lat: Double, lon: Double)
+    case oneCall(lat: Double, lon: Double)
 
     private static let host   = "api.openweathermap.org"
-    // ⚠️ Move this key to a .xcconfig / Info.plist before shipping to production
     private static let apiKey = Configuration.apiKey
 
     var url: URL? {
@@ -50,6 +51,15 @@ private enum Endpoint {
                 URLQueryItem(name: "lon",   value: String(lon)),
                 URLQueryItem(name: "lang",  value: Locale.preferredLanguages.first ?? "en"),
                 URLQueryItem(name: "appid", value: Endpoint.apiKey)
+            ]
+        case .oneCall(let lat, let lon):
+            components.path = "/data/3.0/onecall"
+            components.queryItems = [
+                URLQueryItem(name: "lat",     value: String(lat)),
+                URLQueryItem(name: "lon",     value: String(lon)),
+                URLQueryItem(name: "exclude", value: "minutely,alerts"),
+                URLQueryItem(name: "lang",    value: Locale.preferredLanguages.first ?? "en"),
+                URLQueryItem(name: "appid",   value: Endpoint.apiKey)
             ]
         }
 
@@ -95,6 +105,11 @@ final class NetworkService: NetworkServiceProtocol {
 
         return URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
+            .handleEvents(receiveOutput: { data in
+                    if let json = String(data: data, encoding: .utf8) {
+                        print("🌤️ RAW JSON:\n\(json)")
+                    }
+                })
             .decode(type: CurrentWeather.self, decoder: decoder)
             .mapError { error in
                 error is DecodingError
@@ -119,6 +134,22 @@ final class NetworkService: NetworkServiceProtocol {
                 error is DecodingError
                     ? NetworkError.decodingFailed(error)
                     : NetworkError.underlying(error)
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchOneCall(lat: Double, lon: Double) -> AnyPublisher<OneCallResponse, NetworkError> {
+        guard let url = Endpoint.oneCall(lat: lat, lon: lon).url else {
+            return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
+        }
+        
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map(\.data)
+            .decode(type: OneCallResponse.self, decoder: decoder)
+            .mapError { error in
+                error is DecodingError
+                ? NetworkError.decodingFailed(error)
+                : NetworkError.underlying(error)
             }
             .eraseToAnyPublisher()
     }

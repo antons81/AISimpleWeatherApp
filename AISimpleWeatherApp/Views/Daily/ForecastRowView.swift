@@ -3,13 +3,13 @@ import SwiftUI
 
 struct ForecastRowView: View {
 
-    let item: ForecastItem
+    let item: DailyWeather
     @AppStorage("isImperial") private var isImperial = false
 
     var body: some View {
         HStack(spacing: 12) {
-            WeatherIconView(iconCode: item.weather?.first?.icon ?? "01d", size: 44) // свой размер
-                .frame(width: 52, height: 52) // свой размер
+            WeatherIconView(iconCode: item.weather.first?.icon ?? "01d", size: 44)
+                .frame(width: 52, height: 52)
                 .background(
                     RoundedRectangle(cornerRadius: 14)
                         .fill(Color.white.opacity(0.06))
@@ -32,10 +32,10 @@ struct ForecastRowView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text(maxTemp)
+                Text(dayTemp)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(AppTheme.accentGreen)
-                Text(minTemp)
+                Text(nightTemp)
                     .font(.system(size: 12, design: .rounded))
                     .foregroundStyle(AppTheme.textSecondary)
             }
@@ -45,23 +45,20 @@ struct ForecastRowView: View {
     }
 
     private var dayString: String {
-        guard let dt = item.dt else { return "" }
-        return Date(timeIntervalSince1970: TimeInterval(dt))
+        Date(timeIntervalSince1970: TimeInterval(item.dt))
             .formatted(.dateTime.weekday(.wide))
             .localizedCapitalized
     }
 
     private var description: String {
-        item.weather?.first?.weatherDescription?.capitalizingFirstLetter() ?? ""
+        item.weather.first?.weatherDescription?.capitalizingFirstLetter() ?? ""
     }
 
-    private var minTemp: String {
-        guard let temp = item.main?.tempMin else { return "--" }
-        return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
+    private var dayTemp: String {
+        isImperial ? item.temp.day.toFahrenheitString : item.temp.day.toCelsiusString
     }
 
-    private var maxTemp: String {
-        guard let temp = item.main?.tempMax else { return "--" }
-        return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
+    private var nightTemp: String {
+        isImperial ? item.temp.min.toFahrenheitString : item.temp.min.toCelsiusString
     }
 }

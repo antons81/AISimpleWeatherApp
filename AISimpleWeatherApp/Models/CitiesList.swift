@@ -22,5 +22,5 @@ enum City: String, CaseIterable {
     case manila       = "Manila"
 
     /// All city name strings in one array
-    static var allNames: [String] { allCases.map(\.rawValue) }
+    static var allCities: [String] { allCases.map(\.rawValue) }
 }

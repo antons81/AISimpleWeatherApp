@@ -19,8 +19,8 @@ struct WeatherRowView: View {
     var body: some View {
         HStack(spacing: 14) {
             // Icon
-            WeatherIconView(iconCode: weather.weather?.first?.icon ?? "01d", size: 44) // свой размер
-                .frame(width: 52, height: 52) // свой размер
+            WeatherIconView(iconCode: weather.weather?.first?.icon ?? "01d", size: 44)
+                .frame(width: 52, height: 52)
                 .background(
                     RoundedRectangle(cornerRadius: 14)
                         .fill(Color.white.opacity(0.06))
@@ -44,12 +44,22 @@ struct WeatherRowView: View {
 
             // Temperatures
             VStack(alignment: .trailing, spacing: 3) {
-                Text(maxTemp)
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                    .foregroundStyle(AppTheme.accentGreen)
-                Text(minTemp)
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(AppTheme.textSecondary)
+                HStack {
+                    Text("Current: ")
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundStyle(AppTheme.textTertiary)
+                    Text(mainTemp)
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .foregroundStyle(AppTheme.accentGreen)
+                }
+                HStack {
+                    Text("Feels like: ")
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundStyle(AppTheme.textTertiary)
+                    Text(feelsLike)
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
             }
 
             Image(systemName: "chevron.right")
@@ -59,15 +69,22 @@ struct WeatherRowView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .glassCard()
+        .onAppear {
+//            print("city: \(weather.name ?? "empty") min temp: \(minTemp), maxTemp: \(maxTemp)")
+//            print("kelvin min: \(weather.main?.temp, default: "")")
+//            print("to celcius min: \(weather.main?.temp.toCelsiusString ?? "")")
+//            print("kelvin max: \(weather.main?.temp, default: "")")
+//            print("to celcius max: \(weather.main?.temp.toCelsiusString ?? "")")
+        }
     }
-
-    private var minTemp: String {
-        guard let temp = weather.main?.tempMin else { return "--" }
+    
+    private var mainTemp: String {
+        guard let temp = weather.main?.temp else { return "--" }
         return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
     }
 
-    private var maxTemp: String {
-        guard let temp = weather.main?.tempMax else { return "--" }
+    private var feelsLike: String {
+        guard let temp = weather.main?.feelsLike else { return "--" }
         return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
     }
 }

@@ -11,26 +11,26 @@ import SwiftUI
 
 struct StatsRowView: View {
 
-    let item: ForecastItem
+    let item: DailyWeather
 
     var body: some View {
         HStack(spacing: 8) {
             StatCard(
                 icon: "drop.fill",
                 iconColor: AppTheme.accentBlue,
-                value: "\(item.main?.humidity ?? 0)%",
+                value: "\(item.humidity ?? 0)%",
                 label: "Humidity"
             )
             StatCard(
                 icon: "wind",
                 iconColor: AppTheme.accentGreen,
-                value: item.wind?.speed.map { "\(Int($0)) m/s" } ?? "--",
+                value: ("\(item.windSpeed, default: "0") m/s"),
                 label: "Wind"
             )
             StatCard(
                 icon: "thermometer.medium",
                 iconColor: Color.orange.opacity(0.8),
-                value: "\(item.main?.pressure ?? 0)",
+                value: "\(item.pressure ?? 0)",
                 label: "Pressure"
             )
         }

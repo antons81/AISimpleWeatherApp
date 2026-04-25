@@ -3,15 +3,17 @@ import SwiftUI
 
 struct DailyHeaderView: View {
 
-    let item: ForecastItem
+    let item: DailyWeather
     let cityName: String
+    let dayTemp: Double?
+    let nightTemp: Double?
 
     @AppStorage("isImperial") private var isImperial = false
 
     var body: some View {
         HStack(spacing: 16) {
             // Icon
-            WeatherIconView(iconCode: item.weather?.first?.icon ?? "01d", size: 88) // свой размер
+            WeatherIconView(iconCode: item.weather.first?.icon ?? "01d", size: 88)
                 .frame(width: 100, height: 100)
                 .background(
                     RoundedRectangle(cornerRadius: 14)
@@ -36,15 +38,15 @@ struct DailyHeaderView: View {
                     .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
 
                 HStack(spacing: 8) {
-                    Text(minTemp)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundStyle(AppTheme.accentBlue)
-                    Text("/")
-                        .foregroundStyle(AppTheme.textTertiary)
-                    Text(maxTemp)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundStyle(AppTheme.accentGreen)
-                }
+                       Label(nightTempString, systemImage: "moon.fill")
+                           .font(.system(size: 14, weight: .medium, design: .rounded))
+                           .foregroundStyle(AppTheme.accentBlue)
+                       Text("/")
+                           .foregroundStyle(AppTheme.textTertiary)
+                       Label(dayTempString, systemImage: "sun.max.fill")
+                           .font(.system(size: 14, weight: .medium, design: .rounded))
+                           .foregroundStyle(AppTheme.accentGreen)
+                   }
             }
 
             Spacer()
@@ -54,23 +56,22 @@ struct DailyHeaderView: View {
     }
 
     private var dayString: String {
-        guard let dt = item.dt else { return "" }
-        return Date(timeIntervalSince1970: TimeInterval(dt))
+        Date(timeIntervalSince1970: TimeInterval(item.dt))
             .formatted(.dateTime.weekday(.wide))
             .localizedCapitalized
     }
 
     private var description: String {
-        item.weather?.first?.weatherDescription?.capitalizingFirstLetter() ?? ""
+        item.weather.first?.weatherDescription?.capitalizingFirstLetter() ?? ""
     }
 
-    private var minTemp: String {
-        guard let temp = item.main?.tempMin else { return "--" }
+    private var dayTempString: String {
+        guard let temp = dayTemp else { return "--" }
         return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
     }
-
-    private var maxTemp: String {
-        guard let temp = item.main?.tempMax else { return "--" }
+    
+    private var nightTempString: String {
+        guard let temp = nightTemp else { return "--" }
         return isImperial ? temp.toFahrenheitString : temp.toCelsiusString
     }
 }

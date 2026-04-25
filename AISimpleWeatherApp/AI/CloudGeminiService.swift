@@ -30,16 +30,11 @@ final class CloudGeminiService: AIConsultant {
         return locale.localizedString(forLanguageCode: Locale.current.language.languageCode?.identifier ?? "en") ?? "English"
     }
     
-    func generateWeatherSummary(for weather: ForecastItem, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws {
-        print("☁️ Running Gemini Service")
+    func generateWeatherSummary(for weather: WeatherContext, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws {
         let prompt = AIPromptBuilder.weatherSummary(for: weather, type: type, city: city)
-        let model = model
-        
         let response = try await model.generateContent(prompt)
         if let text = response.text {
-            await MainActor.run {
-                onUpdate(text)
-            }
+            await MainActor.run { onUpdate(text) }
         }
     }
 }

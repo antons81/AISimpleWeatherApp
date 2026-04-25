@@ -10,7 +10,7 @@ import SwiftUI
 
 struct AIForecastCard: View {
 
-    let weather: ForecastItem?
+    let weather: DailyWeather?
     @ObservedObject var viewModel: DailyViewModel
     
 

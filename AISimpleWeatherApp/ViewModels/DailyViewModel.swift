@@ -13,14 +13,18 @@ final class DailyViewModel: ObservableObject {
 
     // MARK: Published state
 
-    @Published var forecastDays:  [ForecastItem] = []
-    @Published var selectedDay:   ForecastItem?  = nil
     @Published var isLoading:     Bool           = false
     @Published var errorMessage:  String?        = nil
     @Published var aiSummary: String             = ""
     @Published var isGenerating: Bool            = false
     @Published var cityName: String              = ""
     @Published var isAILoading: Bool             = false
+    
+    @Published var todayDayTemp: Double?         = nil
+    @Published var todayNightTemp: Double?       = nil
+    
+    @Published var forecastDays:  [DailyWeather] = []
+    @Published var selectedDay:   DailyWeather?  = nil
     
     // MARK: Storage
     @AppStorage("ai_provider") private var aiProvider: AIProvider = .local
@@ -43,52 +47,56 @@ final class DailyViewModel: ObservableObject {
     }
 
     // MARK: - Public API
-    func generateAISummary(for weather: ForecastItem, type: AISummaryType) async {
-        
+    func generateAISummary(for weather: DailyWeather, type: AISummaryType) async {
         await MainActor.run { isGenerating = true }
-        aiSummary = "" // Clear previous text
+        aiSummary = ""
+        
+        let context = WeatherContext(daily: weather)
         
         do {
-                    if aiProvider == .local {
-                        
-                        if localAI.isModelLoaded {
-                            print("🤖 Request to Llama...")
-                            try await localAI.generateWeatherSummary(for: weather, type: type, city: cityName) { [weak self] update in
-                                self?.aiSummary = update
-                            }
-                        } else {
-                            self.aiSummary = "Local model is not available. Try to refresh."
-                        }
-                    } else {
-                        print("☁️ Request to Gemini Cloud...")
-                        _ = try await geminiAI.generateWeatherSummary(for: weather, type: type, city: cityName) {  [weak self] result in
-                             self?.aiSummary = result
-                        }
-                        
+            if aiProvider == .local {
+                if localAI.isModelLoaded {
+                    try await localAI.generateWeatherSummary(for: context, type: type, city: cityName) { [weak self] update in
+                        self?.aiSummary = update
                     }
-                } catch {
-                    print("❌ AI Error: \(error)")
-                    await MainActor.run { self.aiSummary = "generation failed" }
+                } else {
+                    self.aiSummary = "Local model is not available."
                 }
-                
-                await MainActor.run { isGenerating = false }
+            } else {
+                _ = try await geminiAI.generateWeatherSummary(for: context, type: type, city: cityName) { [weak self] result in
+                    self?.aiSummary = result
+                }
+            }
+        } catch {
+            await MainActor.run { self.aiSummary = "generation failed" }
+        }
+        
+        await MainActor.run { isGenerating = false }
     }
-
-
-    /// Fetch 5-day forecast and reduce to one representative entry per day.
+    
     func loadForecast(lat: Double, lon: Double, type: AISummaryType) {
         isLoading    = true
         errorMessage = nil
 
-        service.fetchForecast(lat: lat, lon: lon)
+        service.fetchOneCall(lat: lat, lon: lon)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoading = false
                 if case .failure(let error) = completion {
                     self?.errorMessage = error.localizedDescription
                 }
-            } receiveValue: { [weak self] items in
-                self?.processItems(items, type: type)
+            } receiveValue: { [weak self] oneCall in
+                guard let self else { return }
+                self.todayDayTemp   = oneCall.daily.first?.temp.day
+                self.todayNightTemp = oneCall.daily.first?.temp.min
+                self.forecastDays   = Array(oneCall.daily.dropFirst())
+                self.selectedDay    = oneCall.daily.first
+                
+                if let today = oneCall.daily.first {
+                    Task {
+                        await self.generateAISummary(for: today, type: type)
+                    }
+                }
             }
             .store(in: &cancellables)
     }
@@ -96,15 +104,15 @@ final class DailyViewModel: ObservableObject {
     // MARK: - Private helpers
 
     /// Groups items by calendar day, picks one per day, sorts ascending, drops today.
-    private func processItems(_ items: [ForecastItem], type: AISummaryType) {
+    private func processItems(_ items: [DailyWeather], type: AISummaryType) {
         let grouped = Dictionary(
             grouping: items,
-            by: { dateKey(for: $0.dt ?? 0) }
+            by: { dateKey(for: $0.dt) }
         )
 
-        let reduced: [ForecastItem] = grouped.compactMapValues(\.first).values
+        let reduced: [DailyWeather] = grouped.compactMapValues(\.first).values
             .sorted {
-                ($0.dt ?? 0) < ($1.dt ?? 0)
+                ($0.dt) < ($1.dt)
             }
             .dropFirst()
             .map { $0 }

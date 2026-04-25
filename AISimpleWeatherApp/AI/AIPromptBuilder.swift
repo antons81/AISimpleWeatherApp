@@ -35,26 +35,26 @@ enum AIPromptBuilder {
         return UserDefaults.isImperial
     }
     
-    static func weatherSummary(for weather: ForecastItem, type: AISummaryType, city: String) -> String {
+    static func weatherSummary(for weather: WeatherContext, type: AISummaryType, city: String) -> String {
         
-        let desc = weather.weather?.first?.weatherDescription ?? ""
-        let temp = weather.main?.temp.toCelsiusString ?? "--"
-        let humidity = weather.main?.humidity ?? 0
-        let feels = weather.main?.feelsLike.toCelsiusString ?? "--"
-        let wind = weather.wind?.speed.map { "\(Int($0)) m/s" } ?? "--"
+        let unit = isImperial()
+        let temp = unit ? weather.dayTemp.toFahrenheitString : weather.dayTemp.toCelsiusString
+        let night = unit ? weather.nightTemp.toFahrenheitString : weather.nightTemp.toCelsiusString
+        let wind = weather.windSpeed.map { "\(Int($0)) m/s" } ?? "--"
+        let pressure = weather.pressure.map { "\($0) hPa" } ?? "--"
         
         return """
-        
         You are a helpful assistant for a weather app.
         Mode: \(type.description).
         Language: \(currentLanguage()).
 
         Current weather:
         - City: \(city)
-        - Condition: \(desc)
-        - Temperature: \(temp)
-        - Humidity: \(humidity)%
-        - Feels like: \(feels)
+        - Condition: \(weather.description)
+        - Day temperature: \(temp)
+        - Night temperature: \(night)
+        - Humidity: \(weather.humidity.map { "\($0)%" } ?? "--")
+        - Pressure: \(pressure)
         - Wind: \(wind)
         - Time: \(Date().formattedTime) (\(Date().timeOfDayDescription))
 
@@ -64,7 +64,6 @@ enum AIPromptBuilder {
         3. Use only plain text.
         4. Use bullet points only for lists of more than 3 items, otherwise, use descriptive paragraphs.
         5. Give a brief summary and one practical tip with light humor.
-        
         """
     }
 }

@@ -62,7 +62,9 @@ struct DailyView: View {
                         if let selected = viewModel.selectedDay {
                             DailyHeaderView(
                                 item: selected,
-                                cityName: cityName
+                                cityName: cityName,
+                                dayTemp: viewModel.todayDayTemp,
+                                nightTemp: viewModel.todayNightTemp
                             )
                         }
 
