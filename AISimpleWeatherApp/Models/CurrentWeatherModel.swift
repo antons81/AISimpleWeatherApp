@@ -15,9 +15,18 @@ struct CurrentWeather: Codable, Identifiable {
     let sys: Sys?
     let name: String?
     let wind: Wind?
+    let clouds: Clouds?
+    let visibility: Int?
 
     enum CodingKeys: String, CodingKey {
-        case coord, weather, main, sys, name, wind
+        case coord,
+             weather,
+             main,
+             sys,
+             name,
+             wind,
+             visibility,
+             clouds
     }
 }
 
@@ -32,6 +41,10 @@ struct Coord: Codable {
 
 struct Wind: Codable {
     let speed: Double
+}
+
+struct Clouds: Codable {
+    let all: Int
 }
 
 // MARK: - WeatherMain

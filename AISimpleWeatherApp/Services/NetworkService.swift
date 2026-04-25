@@ -102,19 +102,19 @@ final class NetworkService: NetworkServiceProtocol {
         guard let url = Endpoint.currentWeather(city: city).url else {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }
-
+        
         return URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
             .handleEvents(receiveOutput: { data in
-                    if let json = String(data: data, encoding: .utf8) {
-                        print("🌤️ RAW JSON:\n\(json)")
-                    }
-                })
+                if let json = String(data: data, encoding: .utf8) {
+                    print("🌤️ RAW JSON:\n\(json)")
+                }
+            })
             .decode(type: CurrentWeather.self, decoder: decoder)
             .mapError { error in
                 error is DecodingError
-                    ? NetworkError.decodingFailed(error)
-                    : NetworkError.underlying(error)
+                ? NetworkError.decodingFailed(error)
+                : NetworkError.underlying(error)
             }
             .eraseToAnyPublisher()
     }

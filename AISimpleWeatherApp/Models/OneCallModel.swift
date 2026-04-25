@@ -55,6 +55,7 @@ struct WeatherContext {
     let windSpeed: Double?
     let icon: String
     let pressure: Int?
+
     
     // Из DailyWeather
     init(daily: DailyWeather) {

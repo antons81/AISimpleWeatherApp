@@ -56,7 +56,7 @@ struct DailyView: View {
                     .padding(.top, 8)
                     .padding(.bottom, 16)
 
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: 10) {
                         // Header card
                         if let selected = viewModel.selectedDay {
@@ -70,7 +70,7 @@ struct DailyView: View {
 
                         // Stats row
                         if let selected = viewModel.selectedDay {
-                            StatsRowView(item: selected)
+                            StatsRowView(item: selected, currentWeather: currentWeather)
                         }
 
                         // AI card
@@ -146,7 +146,7 @@ struct DailyView: View {
             ForEach(Array(viewModel.forecastDays.enumerated()), id: \.element.id) { index, item in
                 ForecastRowView(item: item)
                     .contentShape(Rectangle())
-                    .onTapGesture { viewModel.selectedDay = item }
+                    //.onTapGesture { viewModel.selectedDay = item } // tap disable
 
                 if index < viewModel.forecastDays.count - 1 {
                     Divider()
@@ -164,6 +164,6 @@ struct DailyView: View {
 
 //#Preview {
 //    NavigationStack {
-//        //DailyView(cityName: "Berlin", lat: 52.52, lon: 13.405)
+//        DailyView(cityName: "Berlin", lat: 52.52, lon: 13.405, currentWeather: CurrentWeather(coord: nil, weather: nil, main: nil, sys: nil, name: "Test", wind: nil, clouds: 100, visibility: 100))
 //    }
 //}

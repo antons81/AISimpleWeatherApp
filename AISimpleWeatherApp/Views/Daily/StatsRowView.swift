@@ -12,27 +12,50 @@ import SwiftUI
 struct StatsRowView: View {
 
     let item: DailyWeather
+    let currentWeather: CurrentWeather
 
     var body: some View {
-        HStack(spacing: 8) {
-            StatCard(
-                icon: "drop.fill",
-                iconColor: AppTheme.accentBlue,
-                value: "\(item.humidity ?? 0)%",
-                label: "Humidity"
-            )
-            StatCard(
-                icon: "wind",
-                iconColor: AppTheme.accentGreen,
-                value: ("\(item.windSpeed, default: "0") m/s"),
-                label: "Wind"
-            )
-            StatCard(
-                icon: "thermometer.medium",
-                iconColor: Color.orange.opacity(0.8),
-                value: "\(item.pressure ?? 0)",
-                label: "Pressure"
-            )
+        VStack {
+            HStack {
+                StatCard(
+                    icon: "drop.fill",
+                    iconColor: AppTheme.accentBlue,
+                    value: "\(item.humidity ?? 0)%",
+                    label: "Humidity"
+                )
+                StatCard(
+                    icon: "wind",
+                    iconColor: AppTheme.accentGreen,
+                    value: ("\(item.windSpeed, default: "0") m/s"),
+                    label: "Wind"
+                )
+                StatCard(
+                    icon: "thermometer.medium",
+                    iconColor: Color.orange.opacity(0.8),
+                    value: "\(item.pressure ?? 0)",
+                    label: "Pressure"
+                )
+            }
+            HStack {
+                StatCard(
+                    icon: "sun.max.fill",
+                    iconColor: Color(AppTheme.accentUV).opacity(0.8),
+                    value: "\(Int(item.uvi ?? 0))",
+                    label: "UV Index"
+                )
+                StatCard(
+                    icon: "cloud.fill",
+                    iconColor: Color(AppTheme.accentClouds).opacity(0.8),
+                    value: "\(currentWeather.clouds?.all ?? 0)%",
+                    label: "Clouds"
+                )
+                StatCard(
+                    icon: "eye.fill",
+                    iconColor: Color(AppTheme.accentVisibility).opacity(0.8),
+                    value: "\((currentWeather.visibility ?? 0) / 1000) km",
+                    label: "Visibility"
+                )
+            }
         }
     }
 }
