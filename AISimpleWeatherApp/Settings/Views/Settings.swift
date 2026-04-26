@@ -84,31 +84,6 @@ struct SettingsView: View {
                                 Toggle("", isOn: .mapped($provider, toCase: .cloud, onFalseValue: .local) { isCloud in
                                     handleProviderChange(isCloud: isCloud)
                                 })
-//                                Toggle("", isOn: Binding(
-//                                    get: { provider == .cloud },
-//                                    set: { isCloud in
-//                                        provider = isCloud ? .cloud : .local
-//                                        localAIService.releaseModel()
-//                                        // to local
-//                                        if !isCloud {
-//                                            withAnimation(.easeInOut(duration: 0.4)) {
-//                                                showLoadingOverlay = true
-//                                            }
-//                                            Task {
-//                                                print("⚙️ Settings: Switching to Local, starting preload...")
-//                                                await localAIService.preloadModel()
-//                                                
-//                                                if localAIService.isModelLoaded {
-//                                                    withAnimation(.easeInOut(duration: 0.4)) {
-//                                                        DispatchQueue.main.async {
-//                                                            showLoadingOverlay = false
-//                                                        }
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                ))
                                 .tint(AppTheme.accentGreen)
                                 .labelsHidden()
                             }
