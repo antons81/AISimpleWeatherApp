@@ -11,26 +11,25 @@ import SwiftUI
 struct RootView: View {
     
     @StateObject private var locationManager = LocationManager()
-    @EnvironmentObject private var networkService: NetworkService
-    @State private var drawerOpen = false
-    
+    @EnvironmentObject var networkService: NetworkService
+    @State var drawerOpen = false
+    @State var selectedWeather: CurrentWeather? = nil
+    @State var selectedCityName: String = ""
     private let drawerWidth = UIScreen.main.bounds.width * 0.78
     
     var body: some View {
         ZStack(alignment: .leading) {
-            HomeView(drawerOpen: $drawerOpen)
+            HomeView(drawerOpen: $drawerOpen, selectedWeather: $selectedWeather, selectedCityName: $selectedCityName)
                 .environmentObject(locationManager)
             
             if drawerOpen {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(.spring(response: 0.35)) {
-                            drawerOpen = false
-                        }
+                        withAnimation(.spring(response: 0.35)) { drawerOpen = false }
                     }
                 
-                DrawerView(drawerOpen: $drawerOpen)
+                DrawerView(drawerOpen: $drawerOpen, selectedWeather: $selectedWeather, selectedCityName: $selectedCityName)
                     .frame(width: drawerWidth)
                     .transition(.move(edge: .leading))
                     .environmentObject(locationManager)

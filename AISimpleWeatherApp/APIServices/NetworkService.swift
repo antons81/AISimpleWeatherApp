@@ -10,6 +10,7 @@ protocol NetworkServiceProtocol: Sendable {
     func fetchForecast(lat: Double, lon: Double) -> AnyPublisher<[ForecastItem], NetworkError>
     func fetchOneCall(lat: Double, lon: Double) -> AnyPublisher<OneCallResponse, NetworkError>
     func fetchCurrentWeatherByCoord(lat: Double, lon: Double) -> AnyPublisher<CurrentWeather, NetworkError>
+    func fetchGeocode(query: String) -> AnyPublisher<[GeocodingResult], NetworkError>
 }
 
 // MARK: - API Endpoints
@@ -28,6 +29,7 @@ private enum Endpoint {
     case forecast(lat: Double, lon: Double)
     case oneCall(lat: Double, lon: Double)
     case currentWeatherByCoord(lat: Double, lon: Double)
+    case geocoding(query: String)
     
     private static let host   = "api.openweathermap.org"
     private static let apiKey = Configuration.apiKey
@@ -71,6 +73,14 @@ private enum Endpoint {
                 URLQueryItem(name: "lang",  value: Locale.preferredLanguages.first ?? "en"),
                 URLQueryItem(name: "appid", value: Endpoint.apiKey)
             ]
+        case .geocoding(query: let query):
+            components.host = "api.openweathermap.org"
+               components.path = "/geo/1.0/direct"
+               components.queryItems = [
+                   URLQueryItem(name: "q",     value: query),
+                   URLQueryItem(name: "limit", value: "5"),
+                   URLQueryItem(name: "appid", value: Endpoint.apiKey)
+               ]
         }
         return components.url
     }
@@ -115,9 +125,9 @@ final class NetworkService: NetworkServiceProtocol, ObservableObject {
         return URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
             .handleEvents(receiveOutput: { data in
-                if let json = String(data: data, encoding: .utf8) {
-                    // print("🌤️ RAW JSON:\n\(json)")
-                }
+//                if let json = String(data: data, encoding: .utf8) {
+//                     print("🌤️ RAW JSON:\n\(json)")
+//                }
             })
             .decode(type: CurrentWeather.self, decoder: decoder)
             .mapError { error in
@@ -170,6 +180,26 @@ final class NetworkService: NetworkServiceProtocol, ObservableObject {
         return URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
             .decode(type: CurrentWeather.self, decoder: decoder)
+            .mapError { error in
+                error is DecodingError
+                    ? NetworkError.decodingFailed(error)
+                    : NetworkError.underlying(error)
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchGeocode(query: String) -> AnyPublisher<[GeocodingResult], NetworkError> {
+        guard let url = Endpoint.geocoding(query: query).url else {
+            return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
+        }
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map(\.data)
+            .handleEvents(receiveOutput: { data in
+                if let json = String(data: data, encoding: .utf8) {
+                    print("🗺️ Geocoding JSON: \(json)")
+                }
+            })
+            .decode(type: [GeocodingResult].self, decoder: decoder)
             .mapError { error in
                 error is DecodingError
                     ? NetworkError.decodingFailed(error)

@@ -19,6 +19,7 @@ struct DailyView: View {
     @Environment(\.dismiss) private var dismiss
     let service = NetworkService.shared
     
+    
     init(cityName: String, lat: Double, lon: Double, currentWeather: CurrentWeather) {
         self.cityName = cityName
         self.lat = lat

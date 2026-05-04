@@ -89,3 +89,9 @@ struct Weather: Codable {
         case icon
     }
 }
+
+extension CurrentWeather: Equatable {
+    static func == (lhs: CurrentWeather, rhs: CurrentWeather) -> Bool {
+        lhs.name == rhs.name
+    }
+}

@@ -16,6 +16,12 @@ struct HomeView: View {
     @EnvironmentObject private var networkService: NetworkService
     @StateObject private var viewModel = HomeViewModel()
     @AppStorage("isImperial") private var isImperial = false
+    @Binding var selectedWeather: CurrentWeather?
+    @Binding var selectedCityName: String
+    
+    private var activeWeather: CurrentWeather? {
+        selectedWeather ?? viewModel.currentWeather
+    }
     
     var body: some View {
         ZStack {
@@ -61,6 +67,28 @@ struct HomeView: View {
                             Spacer()
                             // Почасовой прогноз
                             hourlyView
+                            
+                            if let weather = activeWeather ?? viewModel.currentWeather {
+                                NavigationLink {
+                                    DailyView(
+                                        cityName: selectedCityName.isEmpty ? locationManager.cityName : selectedCityName,
+                                        lat: weather.coord?.lat ?? 40.7,
+                                        lon: weather.coord?.lon ?? -74.0,
+                                        currentWeather: weather
+                                    )
+                                } label: {
+                                    HStack(spacing: 8) {
+                                        Text("See 7-day forecast")
+                                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 13, weight: .medium))
+                                    }
+                                    .foregroundStyle(AppTheme.accentGreen)
+                                    .padding(.vertical, 14)
+                                    .frame(maxWidth: .infinity)
+                                    .glassCard(cornerRadius: 16)
+                                }
+                            }
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 30)
@@ -68,6 +96,7 @@ struct HomeView: View {
                 }
             }
         }
+
         .task {
             viewModel.setService(networkService)
             locationManager.requestLocation()
@@ -79,6 +108,13 @@ struct HomeView: View {
                 lon: location.coordinate.longitude
             )
         }
+        .onChange(of: selectedWeather) { _, weather in
+            guard let weather else { return }
+            // One Call для day/night и hourly выбранного города
+            if let lat = weather.coord?.lat, let lon = weather.coord?.lon {
+                viewModel.loadWeather(lat: lat, lon: lon)
+            }
+        }
     }
     
     // MARK: - Nav bar
@@ -86,14 +122,10 @@ struct HomeView: View {
     private var navBar: some View {
         HStack {
             Button {
-                withAnimation(.spring(response: 0.35)) {
-                    drawerOpen = true
-                }
+                withAnimation(.spring(response: 0.35)) { drawerOpen = true }
             } label: {
                 ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 38, height: 38)
+                    Circle().fill(Color.white.opacity(0.1)).frame(width: 38, height: 38)
                     Image(systemName: "line.3.horizontal")
                         .font(.system(size: 16, weight: .regular))
                         .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
@@ -103,15 +135,15 @@ struct HomeView: View {
             Spacer()
             
             VStack(spacing: 2) {
-                Text(locationManager.cityName)
+                Text(selectedWeather?.name ?? locationManager.cityName)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(AppTheme.textPrimary)
                 
                 HStack(spacing: 4) {
-                    Image(systemName: "location.fill")
+                    Image(systemName: selectedWeather == nil ? "location.fill" : "mappin.fill")
                         .font(.system(size: 9))
                         .foregroundStyle(AppTheme.accentGreen)
-                    Text("Your location")
+                    Text(selectedCityName.isEmpty ? locationManager.cityName : selectedCityName)
                         .font(.system(size: 11, design: .rounded))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
@@ -119,10 +151,28 @@ struct HomeView: View {
             
             Spacer()
             
-            // Placeholder для симметрии
-            Circle()
-                .fill(Color.clear)
-                .frame(width: 38, height: 38)
+            Circle().fill(Color.clear).frame(width: 38, height: 38)
+//
+//            // to daily view
+//            if let weather = activeWeather ?? viewModel.currentWeather {
+//                NavigationLink {
+//                    DailyView(
+//                        cityName: selectedWeather?.name ?? locationManager.cityName,
+//                        lat: weather.coord?.lat ?? 0,
+//                        lon: weather.coord?.lon ?? 0,
+//                        currentWeather: weather
+//                    )
+//                } label: {
+//                    ZStack {
+//                        Circle().fill(Color.white.opacity(0.1)).frame(width: 38, height: 38)
+//                        Image(systemName: "list.bullet")
+//                            .font(.system(size: 16, weight: .regular))
+//                            .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
+//                    }
+//                }
+//            } else {
+//                Circle().fill(Color.clear).frame(width: 38, height: 38)
+//            }
         }
     }
     
@@ -130,11 +180,8 @@ struct HomeView: View {
     
     private var mainTempView: some View {
         VStack(spacing: 12) {
-            if let weather = viewModel.currentWeather {
-                WeatherIconView(
-                    iconCode: weather.weather?.first?.icon ?? "01d",
-                    size: 150
-                )
+            if let weather = activeWeather {
+                WeatherIconView(iconCode: weather.weather?.first?.icon ?? "01d", size: 150)
                 
                 Text(isImperial
                      ? (weather.main?.temp.toFahrenheitString ?? "--")

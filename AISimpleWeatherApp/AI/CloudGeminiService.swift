@@ -32,9 +32,13 @@ final class CloudGeminiService: AIConsultant {
     
     func generateWeatherSummary(for weather: WeatherContext, type: AISummaryType, city: String, onUpdate: @escaping (String) -> Void) async throws {
         let prompt = AIPromptBuilder.weatherSummary(for: weather, type: type, city: city)
-        let response = try await model.generateContent(prompt)
-        if let text = response.text {
-            await MainActor.run { onUpdate(text) }
+        do {
+            let response = try await model.generateContent(prompt)
+            if let text = response.text {
+                await MainActor.run { onUpdate(text) }
+            }
+        } catch {
+            throw error
         }
     }
 }

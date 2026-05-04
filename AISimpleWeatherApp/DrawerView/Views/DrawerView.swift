@@ -6,101 +6,50 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct DrawerView: View {
     @EnvironmentObject private var networkService: NetworkService
     @StateObject private var viewModel = DrawerViewModel()
     @State private var showSettings = false
     @Binding var drawerOpen: Bool
+    @Binding var selectedWeather: CurrentWeather?
+    @Binding var selectedCityName: String
     
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \SavedCity.addedAt) var savedCities: [SavedCity]
     
     var body: some View {
         ZStack {
-            // Background
-            AppTheme.backgroundGradient
-                .ignoresSafeArea()
-
-            // Decorative blobs
-            Circle()
-                .fill(Color(red: 0.3, green: 0.7, blue: 0.4).opacity(0.08))
-                .frame(width: 300, height: 300)
-                .offset(x: 120, y: -200)
-                .blur(radius: 40)
-
-            Circle()
-                .fill(Color(red: 0.2, green: 0.5, blue: 0.3).opacity(0.07))
-                .frame(width: 250, height: 250)
-                .offset(x: -100, y: 300)
-                .blur(radius: 40)
+            AppTheme.backgroundGradient.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 closeMenuButton
-                
-                // Top bar
-                topBar
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
+                topBar.padding(.horizontal, 20).padding(.top, 8)
+                searchBar.padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 8)
 
-                // Search
-                searchBar
-                    .padding(.horizontal, 16)
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
-
-                // City list
-                if viewModel.filteredWeathers.isEmpty && !viewModel.isLoading {
-                    Spacer()
-                    ContentUnavailableView(
-                        "No Cities",
-                        systemImage: "icloud.slash",
-                        description: Text("Pull to refresh or check your search.")
-                    )
-                    .foregroundStyle(AppTheme.textSecondary)
-                    Spacer()
+                if viewModel.isSearchMode {
+                    searchResultsList
                 } else {
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack(spacing: 10) {
-                            ForEach(viewModel.filteredWeathers) { weather in
-                                NavigationLink {
-                                    DailyView(
-                                        cityName: weather.name ?? "",
-                                        lat: weather.coord?.lat ?? 0,
-                                        lon: weather.coord?.lon ?? 0,
-                                        currentWeather: weather
-                                    )
-                                } label: {
-                                    WeatherRowView(
-                                        weather: weather,
-                                        isImperial: viewModel.isImperial
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 20)
-                    }
-                    //.refreshable { viewModel.loadWeather() }
+                    savedCitiesList
                 }
             }
 
-            // Loading overlay
             if viewModel.isLoading {
                 Color.black.opacity(0.2).ignoresSafeArea()
-                ProgressView()
-                    .tint(AppTheme.accentGreen)
-                    .scaleEffect(1.4)
+                ProgressView().tint(AppTheme.accentGreen).scaleEffect(1.4)
             }
         }
         .navigationBarHidden(true)
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-        }
+        .sheet(isPresented: $showSettings) { SettingsView() }
         .task {
             viewModel.setService(networkService)
-            if viewModel.weathers.isEmpty {
-                viewModel.loadWeather()
-            }
+            viewModel.loadWeather(for: savedCities)
+        }
+        .onChange(of: savedCities) { _, cities in
+            viewModel.loadWeather(for: cities)
+            print("💾 savedCities: \(savedCities.map { $0.name })")
+            print("🌐 weathers: \(viewModel.weathers.map { $0.name })")
         }
         .alert("", isPresented: Binding(value: $viewModel.errorMessage), actions: {
             Button("OK", role: .cancel) {}
@@ -110,7 +59,6 @@ struct DrawerView: View {
     }
 
     // MARK: - Top bar
-
     private var topBar: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -121,38 +69,27 @@ struct DrawerView: View {
                     .font(.system(size: 12, weight: .regular, design: .rounded))
                     .foregroundStyle(AppTheme.textSecondary)
             }
-
             Spacer()
         }
     }
     
+    // MARK: - Close button
     private var closeMenuButton: some View {
         HStack {
-            
-            // close button
             Button {
-                withAnimation(.spring(response: 0.35)) {
-                    drawerOpen = false
-                }
+                withAnimation(.spring(response: 0.35)) { drawerOpen = false }
             } label: {
                 ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 38, height: 38)
+                    Circle().fill(Color.white.opacity(0.1)).frame(width: 38, height: 38)
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
                 }
             }
-            
             Spacer()
-            
-            // Settings button
             Button { showSettings = true } label: {
                 ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 38, height: 38)
+                    Circle().fill(Color.white.opacity(0.1)).frame(width: 38, height: 38)
                     Image(systemName: "gearshape")
                         .font(.system(size: 16, weight: .regular))
                         .foregroundStyle(AppTheme.textPrimary.opacity(0.8))
@@ -165,7 +102,6 @@ struct DrawerView: View {
     }
 
     // MARK: - Search bar
-
     private var searchBar: some View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
@@ -196,26 +132,103 @@ struct DrawerView: View {
         .padding(.vertical, 12)
         .glassCard(cornerRadius: 14)
     }
-}
 
-// MARK: - Placeholder helper
-
-extension View {
-    func placeholder<Content: View>(
-        when shouldShow: Bool,
-        @ViewBuilder placeholder: () -> Content) -> some View {
-        ZStack(alignment: .leading) {
-            placeholder().opacity(shouldShow ? 1 : 0)
-            self
+    // MARK: - Search results
+    private var searchResultsList: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: 10) {
+                if viewModel.isSearching {
+                    ProgressView().tint(AppTheme.accentGreen).padding()
+                } else if viewModel.searchResults.isEmpty {
+                    Text("No results")
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .padding()
+                } else {
+                    ForEach(viewModel.searchResults) { result in
+                        GeocodingRowView(result: result) {
+                            addCity(result)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
         }
     }
+
+    // MARK: - Saved cities list
+    private var savedCitiesList: some View {
+        Group {
+            if savedCities.isEmpty {
+                Spacer()
+                ContentUnavailableView(
+                    "No Cities",
+                    systemImage: "map",
+                    description: Text("Search and add cities above.")
+                )
+                .foregroundStyle(AppTheme.textSecondary)
+                Spacer()
+            } else {
+                List {
+                    ForEach(savedCities) { city in
+                        
+                        let weather = viewModel.weathers.first(where: {
+                            guard let lat = $0.coord?.lat, let lon = $0.coord?.lon else { return false }
+                            return abs(lat - city.lat) < 0.5 && abs(lon - city.lon) < 0.5
+                        })
+                        
+                        Button {
+                            if let weather {
+                                selectedWeather = weather
+                                withAnimation(.spring(response: 0.35)) { drawerOpen = false }
+                            }
+                        } label: {
+                            if let weather {
+                                WeatherRowView(
+                                    weather: weather,
+                                    isImperial: viewModel.isImperial,
+                                    overrideName: city.name
+                                )
+                            } else {
+                                HStack {
+                                    Text(city.name)
+                                        .foregroundStyle(AppTheme.textPrimary)
+                                    Spacer()
+                                    ProgressView().tint(AppTheme.accentGreen)
+                                }
+                                .padding()
+                                .glassCard()
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                modelContext.delete(city)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                    }
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+            }
+        }
+    }
+
+    // MARK: - Add city
+    private func addCity(_ result: GeocodingResult) {
+        let exists = savedCities.contains { $0.lat == result.lat && $0.lon == result.lon }
+        guard !exists else { return }
+        let city = SavedCity(
+            name: result.localizedName,
+            lat: result.lat,
+            lon: result.lon,
+            country: result.country
+        )
+        modelContext.insert(city)
+        viewModel.searchText = ""
+    }
 }
-
-
-// MARK: - Preview
-
-//#Preview {
-//    NavigationStack {
-//        DrawerView()
-//    }
-//}

@@ -3,6 +3,7 @@
 
 import SwiftUI
 import Firebase
+import SwiftData
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -54,6 +55,7 @@ struct WearlyWeatherApp: App {
                 handleSceneChange(to: newPhase)
             }
         }
+        .modelContainer(for: SavedCity.self)
     }
     
     private func handleSceneChange(to phase: ScenePhase) {

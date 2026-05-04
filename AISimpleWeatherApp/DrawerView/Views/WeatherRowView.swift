@@ -14,6 +14,7 @@ struct WeatherRowView: View {
 
     let weather: CurrentWeather
     let isImperial: Bool
+    var overrideName: String? = nil
 
 
     var body: some View {
@@ -32,7 +33,7 @@ struct WeatherRowView: View {
 
             // City + description
             VStack(alignment: .leading, spacing: 3) {
-                Text(weather.name?.localizedCapitalized ?? "")
+                Text(overrideName ?? weather.name?.localizedCapitalized ?? "")
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(AppTheme.textPrimary)
                 Text(weather.weather?.first?.weatherDescription.capitalizingFirstLetter() ?? "")
@@ -67,13 +68,6 @@ struct WeatherRowView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .glassCard()
-        .onAppear {
-//            print("city: \(weather.name ?? "empty") min temp: \(minTemp), maxTemp: \(maxTemp)")
-//            print("kelvin min: \(weather.main?.temp, default: "")")
-//            print("to celcius min: \(weather.main?.temp.toCelsiusString ?? "")")
-//            print("kelvin max: \(weather.main?.temp, default: "")")
-//            print("to celcius max: \(weather.main?.temp.toCelsiusString ?? "")")
-        }
     }
     
     private var mainTemp: String {

@@ -72,7 +72,14 @@ final class DailyViewModel: ObservableObject {
                 }
             }
         } catch {
-            await MainActor.run { self.aiSummary = "generation failed" }
+            let message = error.localizedDescription
+            await MainActor.run {
+                if message.contains("high demand") || message.contains("overloaded") {
+                    self.aiSummary = "AI service is temporarily busy. Please try again."
+                } else {
+                    self.aiSummary = "Generation failed. Please try again."
+                }
+            }
         }
         
         await MainActor.run { isGenerating = false }
