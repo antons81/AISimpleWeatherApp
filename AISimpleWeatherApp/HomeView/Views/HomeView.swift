@@ -22,6 +22,8 @@ struct HomeView: View {
             AppTheme.backgroundGradient
                 .ignoresSafeArea()
             
+            WeatherAnimationView(iconCode: viewModel.currentWeather?.weather?.first?.icon ?? "01d")
+            
             // Декоративные блобы
             Circle()
                 .fill(Color(red: 0.3, green: 0.7, blue: 0.4).opacity(0.08))
@@ -56,7 +58,7 @@ struct HomeView: View {
                             
                             // День / Ночь
                             dayNightView
-                            
+                            Spacer()
                             // Почасовой прогноз
                             hourlyView
                         }
@@ -131,7 +133,7 @@ struct HomeView: View {
             if let weather = viewModel.currentWeather {
                 WeatherIconView(
                     iconCode: weather.weather?.first?.icon ?? "01d",
-                    size: 100
+                    size: 150
                 )
                 
                 Text(isImperial

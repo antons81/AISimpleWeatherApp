@@ -14,6 +14,7 @@ struct DailyView: View {
     let lon: Double
     let currentWeather: CurrentWeather
 
+    @EnvironmentObject private var networkService: NetworkService
     @StateObject private var viewModel: DailyViewModel
     @Environment(\.dismiss) private var dismiss
     let service = NetworkService.shared
@@ -26,8 +27,7 @@ struct DailyView: View {
         
         // service and viewmodel
         let cloudAI = CloudGeminiService()
-        let vm = DailyViewModel(service: service, aiService: cloudAI)
-        
+        let vm = DailyViewModel(aiService: cloudAI)
         self._viewModel = StateObject(wrappedValue: vm)
     }
 
@@ -70,6 +70,7 @@ struct DailyView: View {
 
                         // Stats row
                         if let selected = viewModel.selectedDay {
+                            let _ = print("selected day uvi: \(String(describing: selected.uvi))")
                             StatsRowView(item: selected, currentWeather: currentWeather)
                         }
 
@@ -103,6 +104,7 @@ struct DailyView: View {
         }
         .navigationBarHidden(true)
         .task {
+            viewModel.setService(networkService)
             viewModel.loadForecast(lat: lat, lon: lon, type: .normal)
         }
         .alert(

@@ -39,9 +39,9 @@ struct StatsRowView: View {
             HStack {
                 StatCard(
                     icon: "sun.max.fill",
-                    iconColor: Color(AppTheme.accentUV).opacity(0.8),
-                    value: "\(Int(item.uvi ?? 0))",
-                    label: "UV Index"
+                    iconColor: item.uvi?.uviLevel.color ?? .orange,
+                    value: "\(Int(item.uvi?.rounded() ?? 0))",
+                    label: "\(item.uvi?.uviLevel.label ?? "UV Index")"
                 )
                 StatCard(
                     icon: "cloud.fill",
@@ -52,7 +52,7 @@ struct StatsRowView: View {
                 StatCard(
                     icon: "eye.fill",
                     iconColor: Color(AppTheme.accentVisibility).opacity(0.8),
-                    value: "\((currentWeather.visibility ?? 0) / 1000) km",
+                    value: (currentWeather.visibility ?? 0) >= 10000 ? "10+ km" : "\((currentWeather.visibility ?? 0) / 1000) km",
                     label: "Visibility"
                 )
             }
@@ -81,5 +81,17 @@ struct StatCard: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .glassCard(cornerRadius: 14)
+    }
+}
+
+extension Double {
+    var uviLevel: (label: String, color: Color) {
+        switch Int(self.rounded()) {
+        case 0...2:  return ("Low", .green)
+        case 3...5:  return ("Moderate", .yellow)
+        case 6...7:  return ("High", .orange)
+        case 8...10: return ("Very High", .red)
+        default:     return ("Extreme", .purple)
+        }
     }
 }
