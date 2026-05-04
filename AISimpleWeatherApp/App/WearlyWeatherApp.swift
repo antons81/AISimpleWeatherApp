@@ -27,6 +27,8 @@ struct WearlyWeatherApp: App {
     
     @AppStorage("ai_provider") private var aiProvider: AIProvider = .local
     @StateObject private var localAIService = LocalAIService.shared // AI Service
+    @StateObject private var networkService = NetworkService()
+    @StateObject private var locationManager = LocationManager()
     @State private var isAppReady = false
     
     
@@ -38,12 +40,15 @@ struct WearlyWeatherApp: App {
                     LaunchScreenView(isReady: $isAppReady)
                 } else {
                     NavigationStack {
-                        MainView()
+                        //MainView()
+                        RootView()
                     }
                     .transition(.opacity)
                 }
             }
             .environmentObject(localAIService)
+            .environmentObject(networkService)
+            .environmentObject(locationManager)
             .id(isAppReady)
             .onChange(of: scenePhase) { oldPhase, newPhase in
                 handleSceneChange(to: newPhase)

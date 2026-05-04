@@ -35,15 +35,19 @@ final class DailyViewModel: ObservableObject {
     private let localAI = LocalAIService.shared
     private let geminiAI = CloudGeminiService()
     private var cancellables = Set<AnyCancellable>()
-    private let service: NetworkServiceProtocol
+    private var service: NetworkServiceProtocol
     
 
     // MARK: Init
     
-    init(service: NetworkServiceProtocol? = nil, aiService: AIConsultant) {
-        self.service = service ?? NetworkService.shared
+    init(aiService: AIConsultant) {
+        self.service = NetworkService()
         self.aiService = aiService
         self.cancellables = Set<AnyCancellable>()
+    }
+
+    func setService(_ service: NetworkServiceProtocol) {
+        self.service = service
     }
 
     // MARK: - Public API

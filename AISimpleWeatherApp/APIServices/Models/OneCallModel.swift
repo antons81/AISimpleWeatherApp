@@ -13,6 +13,7 @@ import Foundation
 
 struct OneCallResponse: Decodable {
     let daily: [DailyWeather]
+    let hourly: [HourlyWeather]?
 }
 
 // MARK: - DailyWeather
@@ -82,3 +83,20 @@ struct WeatherContext {
     }
 }
 
+
+// MARK: - Hourly Weather
+
+struct HourlyWeather: Decodable, Identifiable {
+    var id: Int64 { dt }
+    
+    let dt: Int64
+    let temp: Double
+    let weather: [ForecastWeather]
+    let windSpeed: Double?
+    let humidity: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case dt, temp, weather, humidity
+        case windSpeed = "wind_speed"
+    }
+}
